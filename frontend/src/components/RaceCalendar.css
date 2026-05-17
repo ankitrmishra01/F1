@@ -1,0 +1,108 @@
+.race-calendar {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.race-calendar h2 {
+  text-align: center;
+  margin-top: 0;
+  color: #333;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}
+
+.race-calendar.loading,
+.race-calendar.error {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.race-calendar.error {
+  color: #d32f2f;
+  background: #ffebee;
+}
+
+.races-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.race-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.race-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.race-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.race-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  flex: 1;
+}
+
+.season {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.race-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.race-details p {
+  margin: 0;
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.race-details strong {
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .race-calendar {
+    padding: 1rem;
+  }
+
+  .races-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .race-card {
+    padding: 1rem;
+  }
+
+  .race-header h3 {
+    font-size: 1.2rem;
+  }
+}

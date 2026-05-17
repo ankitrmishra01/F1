@@ -1,0 +1,11 @@
+race_id,winner_id,winner_name,second_place_id,second_place_name,third_place_id,third_place_name,pole_position_id,pole_position_name,points_winner,fastest_lap_id,fastest_lap_name,season
+1,1,Red Bull Racing,3,Ferrari,2,Mercedes,1,Red Bull Racing,25,1,Red Bull Racing,2023
+2,2,Mercedes,1,Red Bull Racing,3,Ferrari,1,Red Bull Racing,25,1,Red Bull Racing,2023
+3,3,Ferrari,1,Red Bull Racing,4,McLaren,2,Mercedes,25,1,Red Bull Racing,2023
+4,1,Red Bull Racing,3,Ferrari,2,Mercedes,1,Red Bull Racing,25,1,Red Bull Racing,2023
+5,2,Mercedes,4,McLaren,1,Red Bull Racing,3,Ferrari,25,3,Ferrari,2023
+6,1,Red Bull Racing,2,Mercedes,3,Ferrari,1,Red Bull Racing,25,1,Red Bull Racing,2023
+7,3,Ferrari,2,Mercedes,1,Red Bull Racing,1,Red Bull Racing,25,2,Mercedes,2023
+8,4,McLaren,1,Red Bull Racing,2,Mercedes,3,Ferrari,25,2,Mercedes,2023
+9,1,Red Bull Racing,3,Ferrari,2,Mercedes,1,Red Bull Racing,25,1,Red Bull Racing,2023
+10,2,Mercedes,1,Red Bull Racing,4,McLaren,2,Mercedes,25,3,Ferrari,2023

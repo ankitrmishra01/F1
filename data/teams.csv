@@ -1,0 +1,11 @@
+team_id,team_name,driver1,driver2,country,engine,points,wins
+1,Red Bull Racing,Max Verstappen,Sergio Perez,Austria,Honda RBPT,575,15
+2,Mercedes,Lewis Hamilton,George Russell,Germany,Mercedes,409,3
+3,Ferrari,Carlos Sainz,Charles Leclerc,Italy,Ferrari,468,5
+4,McLaren,Oscar Piastri,Lando Norris,UK,Mercedes,420,4
+5,Aston Martin,Fernando Alonso,Lance Stroll,UK,Mercedes,240,1
+6,Alfaromeo,Zhou Guanyu,Valtteri Bottas,Switzerland,Ferrari,114,0
+7,Haas,Nico Hulkenberg,Kevin Magnussen,Germany,Ferrari,57,0
+8,Kick Sauber,Yuki Tsunoda,Guanyu Zhou,Switzerland,Ferrari,30,0
+9,RB,Liam Lawson,Yuki Tsunoda,Italy,Honda RBPT,34,0
+10,Williams,Alex Albon,Logan Sargeant,UK,Mercedes,17,0
