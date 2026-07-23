@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Import routes
-from app.routes import predictions, races, teams, drivers, records, admin, seasons, news, cars
+from app.routes import predictions, races, teams, drivers, records, admin, seasons, news, cars, circuits
 from app.ml.model import F1PredictionModel
 
 # Initialize FastAPI app
@@ -45,6 +45,7 @@ app.include_router(admin.router)
 app.include_router(seasons.router)
 app.include_router(news.router)
 app.include_router(cars.router)
+app.include_router(circuits.router)
 
 # Initialize ML model
 model = F1PredictionModel()
@@ -73,6 +74,7 @@ async def root():
             "seasons": "/api/seasons",
             "news": "/api/news",
             "cars": "/api/cars",
+            "circuits": "/api/circuits",
             "docs": "/docs"
         }
     }

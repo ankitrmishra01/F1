@@ -64,6 +64,11 @@ export const carsAPI = {
   getCars: () => api.get("/api/cars/"),
 };
 
+export const circuitsAPI = {
+  getCircuits: () => api.get("/api/circuits/"),
+  getCircuitDetail: (circuitId) => api.get(`/api/circuits/${circuitId}`),
+};
+
 export const healthAPI = {
   checkHealth: () => api.get("/health"),
   getStatus: () => api.get("/api/v1/status"),

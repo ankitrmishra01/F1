@@ -1,25 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --bg-primary: #09090b;
-  --bg-secondary: #121824;
-  --bg-card: #141c2c;
-  --bg-card-hover: #1b263b;
+  /* Mercedes-AMG Petronas F1 Color Palette */
+  --bg-primary: #080b10;
+  --bg-secondary: #0d121c;
+  --bg-card: #111827;
+  --bg-card-hover: #172033;
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
   
-  --accent-cyan: #38bdf8;
-  --accent-cyan-bright: #00f2fe;
-  --accent-blue: #3b82f6;
+  --accent-cyan: #00f5d4;
+  --accent-cyan-bright: #00d2be;
+  --accent-petronas: #00f5d4;
+  --accent-blue: #0284c7;
   --accent-indigo: #6366f1;
-  --accent-emerald: #10b981;
+  --accent-silver: #cbd5e1;
   --accent-gold: #f59e0b;
   
-  --border-color: rgba(255, 255, 255, 0.09);
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --glow-cyan: 0 0 20px rgba(56, 189, 248, 0.2);
-  --glow-card: 0 14px 40px -10px rgba(0, 0, 0, 0.7);
+  --border-color: rgba(0, 245, 212, 0.16);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --glow-cyan: 0 0 25px rgba(0, 245, 212, 0.3);
+  --glow-card: 0 16px 45px -10px rgba(0, 0, 0, 0.85);
 
   font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
@@ -44,8 +46,8 @@ body {
   min-height: 100vh;
   background-color: var(--bg-primary);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.04) 0px, transparent 40%),
-    radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.04) 0px, transparent 40%);
+    radial-gradient(at 0% 0%, rgba(0, 245, 212, 0.05) 0px, transparent 45%),
+    radial-gradient(at 100% 100%, rgba(2, 132, 199, 0.05) 0px, transparent 45%);
   background-attachment: fixed;
 }
 
@@ -66,7 +68,6 @@ a:hover {
   color: var(--accent-cyan);
 }
 
-/* Pill Chip Buttons (CineSense AI aesthetic) */
 button {
   border-radius: 20px;
   border: 1px solid var(--border-color);
@@ -89,7 +90,7 @@ button:hover {
   box-shadow: var(--glow-cyan);
 }
 
-/* Custom Scrollbar */
+/* Custom Petronas Emerald Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }

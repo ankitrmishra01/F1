@@ -46,9 +46,9 @@
 }
 
 .live-chip {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--accent-emerald);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: rgba(0, 245, 212, 0.1);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 245, 212, 0.25);
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 0.72rem;
@@ -59,7 +59,7 @@
 /* ─── HOME GRID ─── */
 .home-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 2.2fr 1fr;
   gap: 32px;
   align-items: start;
 }
@@ -168,27 +168,28 @@
 /* ─── PREDICTION SIDEBAR ─── */
 .prediction-sidebar {
   width: 100%;
-}
-
-.prediction-sidebar.full-width {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 24px;
+  position: sticky;
+  top: 80px;
 }
 
 .prediction-card {
   background: var(--bg-card);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 24px;
   border: 1px solid var(--border-color);
   border-top: 4px solid var(--accent-cyan);
   box-shadow: var(--glow-card);
-  background-image: linear-gradient(
-    to bottom,
-    rgba(56, 189, 248, 0.06) 0%,
-    transparent 50%
-  );
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.prediction-card.clickable-card {
+  cursor: pointer;
+}
+
+.prediction-card.clickable-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
 }
 
 .prediction-card-header {
@@ -197,7 +198,7 @@
 
 .pred-badge {
   display: inline-block;
-  background: linear-gradient(135deg, var(--accent-cyan-bright), var(--accent-blue));
+  background: linear-gradient(135deg, var(--accent-cyan-bright), var(--accent-cyan));
   color: #040914;
   padding: 2px 8px;
   border-radius: 4px;
@@ -215,8 +216,8 @@
 }
 
 .winner-block {
-  margin-bottom: 20px;
-  background: rgba(9, 14, 23, 0.6);
+  margin-bottom: 18px;
+  background: rgba(8, 11, 16, 0.6);
   padding: 16px;
   border-radius: 10px;
   border: 1px solid var(--border-subtle);
@@ -257,93 +258,27 @@
 }
 
 .confidence-label {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--accent-cyan);
-  font-weight: 700;
+  font-weight: 800;
 }
 
-.why-btn {
-  background: transparent;
+.open-hub-banner {
+  background: rgba(0, 245, 212, 0.08);
   border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  font-size: 0.72rem;
-  padding: 3px 8px;
-  border-radius: 12px;
-}
-
-.why-btn:hover {
-  border-color: var(--accent-cyan);
-  color: var(--accent-cyan);
-}
-
-.insights-drawer {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  animation: fadeIn 0.3s ease;
-}
-
-.insight-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 0.78rem;
-}
-
-.insight-name {
-  color: var(--text-secondary);
-}
-
-.insight-val {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.contenders-block {
-  border-top: 1px solid var(--border-color);
-  padding-top: 16px;
-}
-
-.contenders-title {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 12px;
-}
-
-.contenders-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.contender-item {
+  border-radius: 10px;
+  padding: 12px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.contender-item:last-child {
-  border-bottom: none;
-}
-
-.contender-name {
-  font-size: 0.9rem;
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.contender-pct {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
+  font-weight: 800;
   color: var(--accent-cyan);
-  font-weight: 700;
+  transition: background 0.2s ease;
+}
+
+.open-hub-banner:hover {
+  background: rgba(0, 245, 212, 0.16);
 }
 
 /* ─── IN-APP EXPANDING NEWS MODAL ─── */
@@ -353,8 +288,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(4, 9, 20, 0.85);
-  backdrop-filter: blur(10px);
+  background: rgba(4, 7, 12, 0.88);
+  backdrop-filter: blur(12px);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -379,7 +314,7 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(13, 18, 28, 0.8);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   border-radius: 20px;

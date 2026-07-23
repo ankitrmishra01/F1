@@ -1,0 +1,339 @@
+.circuits-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.circuits-header {
+  margin-bottom: 28px;
+}
+
+.petronas-badge {
+  display: inline-block;
+  background: rgba(0, 245, 212, 0.1);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 245, 212, 0.3);
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.circuits-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.circuits-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  max-width: 850px;
+}
+
+.circuits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+}
+
+.circuit-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.circuit-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+/* Motorsport Calendar Vector Header */
+.circuit-card-media-vector {
+  position: relative;
+  height: 180px;
+  background: #090e17;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  background-image: radial-gradient(circle at center, rgba(0, 245, 212, 0.04) 0%, transparent 70%);
+}
+
+.circuit-flag-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(13, 19, 29, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+  padding: 4px 10px;
+  border-radius: 14px;
+  z-index: 2;
+}
+
+.flag-icon {
+  font-size: 0.95rem;
+}
+
+.flag-country {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.track-vector-svg {
+  width: 85%;
+  height: 85%;
+  filter: drop-shadow(0 0 10px rgba(0, 245, 212, 0.2));
+  transition: filter 0.25s ease;
+}
+
+.circuit-card:hover .track-vector-svg {
+  filter: drop-shadow(0 0 15px rgba(0, 245, 212, 0.6));
+}
+
+.circuit-card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.circuit-card-name {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.circuit-card-loc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.circuit-card-specs {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(8, 11, 16, 0.5);
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 14px;
+}
+
+.spec-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.spec-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.spec-val {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+}
+
+.circuit-card-master {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.inspect-btn {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+}
+
+/* MODAL */
+.circuit-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(4, 7, 12, 0.88);
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.25s ease;
+}
+
+.circuit-modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 32px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+}
+
+.circuit-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(13, 18, 28, 0.8);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 20px;
+  padding: 6px 16px;
+}
+
+.circuit-modal-header h2 {
+  font-size: 1.8rem;
+  font-weight: 900;
+  margin-top: 6px;
+  margin-bottom: 24px;
+}
+
+.circuit-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+@media (max-width: 768px) {
+  .circuit-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.map-wrapper-vector {
+  background: rgba(8, 11, 16, 0.7);
+  border-radius: 14px;
+  padding: 24px;
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 220px;
+}
+
+.modal-track-svg {
+  width: 90%;
+  height: 180px;
+  filter: drop-shadow(0 0 12px rgba(0, 245, 212, 0.4));
+}
+
+.specs-box {
+  background: rgba(8, 11, 16, 0.6);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+}
+
+.specs-box h4 {
+  font-size: 0.9rem;
+  color: var(--accent-cyan);
+  margin-bottom: 12px;
+}
+
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sector-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.sector-card {
+  background: rgba(8, 11, 16, 0.6);
+  padding: 12px 14px;
+  border-radius: 10px;
+  border-left: 3px solid var(--accent-cyan);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sector-title {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: var(--accent-cyan);
+  letter-spacing: 0.5px;
+}
+
+.sector-desc {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.record-banner {
+  background: linear-gradient(135deg, rgba(0, 245, 212, 0.1), rgba(2, 132, 199, 0.1));
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.record-time {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--accent-cyan);
+}
+
+.record-holder {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.masters-box {
+  background: rgba(8, 11, 16, 0.6);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.master-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}

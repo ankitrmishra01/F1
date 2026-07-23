@@ -9,6 +9,7 @@ import RaceWeekend from "./components/RaceWeekend";
 import AllTimeRecords from "./components/AllTimeRecords";
 import CarSpecs from "./components/CarSpecs";
 import PredictionsCenter from "./components/PredictionsCenter";
+import Circuits from "./components/Circuits";
 import { healthAPI } from "./api/client";
 import "./App.css";
 
@@ -37,6 +38,7 @@ function App() {
   const navItems = [
     { path: "/", label: "Home", match: (p) => p === "/" },
     { path: "/predictions", label: "🎯 Predictions", match: (p) => p === "/predictions" },
+    { path: "/circuits", label: "🛣️ Circuits", match: (p) => p === "/circuits" },
     { path: "/standings", label: "Standings", match: (p) => p.includes("/standings") || p.includes("/driver") || p.includes("/team") },
     { path: "/calendar", label: "Schedule", match: (p) => p.includes("/calendar") || p.includes("/race") },
     { path: "/records", label: "Records", match: (p) => p === "/records" },
@@ -81,6 +83,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/predictions" element={<PredictionsCenter />} />
+          <Route path="/circuits" element={<Circuits />} />
           <Route path="/standings" element={<Standings />} />
           <Route path="/calendar" element={<RaceCalendar />} />
           <Route path="/driver/:driverId" element={<DriverProfile />} />
@@ -92,7 +95,7 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>GridForm Analytics & ML Predictor | Powered by scikit-learn, Jolpica & OpenF1</p>
+        <p>GridForm Analytics & ML Predictor | Powered by Mercedes Petronas Telemetry, scikit-learn, Jolpica & OpenF1</p>
       </footer>
     </div>
   );
