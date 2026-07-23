@@ -24,6 +24,7 @@ export const predictionAPI = {
     }),
     
   getFavourite: () => api.get("/api/predictions/favourite"),
+  predictRace: (season = 2026, round_num = 1) => api.post("/api/predictions/race", { season: parseInt(season), round_num: parseInt(round_num) }),
   getChampionship: () => api.get("/api/predictions/championship"),
 };
 

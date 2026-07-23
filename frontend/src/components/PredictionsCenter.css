@@ -1,0 +1,209 @@
+.predictions-container {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.predictions-header {
+  margin-bottom: 24px;
+}
+
+.accuracy-badge {
+  display: inline-block;
+  background: rgba(56, 189, 248, 0.1);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.predictions-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.predictions-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  max-width: 800px;
+}
+
+.subtab-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.subtab-btn {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 10px 22px;
+  border-radius: 24px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.subtab-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-cyan);
+  background: var(--bg-card-hover);
+}
+
+.subtab-btn.active {
+  background: linear-gradient(135deg, var(--accent-cyan-bright), var(--accent-cyan));
+  color: #040914;
+  border-color: transparent;
+  box-shadow: var(--glow-cyan);
+  font-weight: 900;
+}
+
+.prediction-box {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 28px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--glow-card);
+}
+
+.selector-bar {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.select-group label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.select-group select {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.top-winner-card {
+  background: rgba(9, 14, 23, 0.7);
+  border-radius: 14px;
+  padding: 24px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-left: 4px solid var(--accent-cyan);
+  margin-bottom: 32px;
+}
+
+.winner-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: var(--accent-cyan);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.top-winner-name {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.top-winner-team {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 16px;
+}
+
+.confidence-wrapper {
+  margin-bottom: 16px;
+}
+
+.confidence-bar-bg {
+  width: 100%;
+  height: 10px;
+  background: var(--bg-primary);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.confidence-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan-bright));
+  border-radius: 5px;
+  transition: width 0.8s ease;
+  box-shadow: var(--glow-cyan);
+}
+
+.confidence-text {
+  font-size: 0.85rem;
+  color: var(--accent-cyan);
+  font-weight: 800;
+}
+
+.telemetry-badge {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.contenders-section h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.contenders-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.contenders-table th {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.contenders-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.contenders-table tr:hover td {
+  background: var(--bg-card-hover);
+}
+
+.contenders-table tr.favourite-row td {
+  background: rgba(56, 189, 248, 0.05);
+}
