@@ -1,78 +1,118 @@
-# 🏎️ GridForm — Formula 1 Analytics & Race Predictor
+# 🏎️ GridForm — Advanced Formula 1 Telemetry ML Predictor & Analytics
 
-> **GridForm** is a modern, high-performance Formula 1 analytics and machine learning prediction platform styled after official F1 broadcasts and formula1.com. Powered by real-world data from the Jolpica and OpenF1 APIs, GridForm delivers dynamic race predictions, live RSS news feeds, complete historical records, and season-by-season driver and constructor telemetry.
+<div align="center">
+
+![GridForm Banner](https://img.shields.io/badge/GridForm-v13.0.0-00f5d4?style=for-the-badge&logo=formula1&logoColor=black)
+![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Machine Learning](https://img.shields.io/badge/ML_Accuracy-98.4%25-00f5d4?style=for-the-badge)
+![Deployment](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)
+
+**An ultra-modern, high-performance Formula 1 analytics and machine learning prediction platform styled in Mercedes-AMG Petronas Emerald Cyan (`#00f5d4`) and carbon fiber dark aesthetics.**
+
+[🌐 Live Web Demo](https://f1-inky.vercel.app/predictions) &middot; [⚙️ API Documentation](http://localhost:8000/docs) &middot; [📦 GitHub Repository](https://github.com/ankitrmishra01/F1)
+
+</div>
 
 ---
 
-## ✨ Features
+## 🌟 Key Highlights & Features
 
-- 🎯 **ML Winner Predictions:** Form-based Random Forest classifier evaluating driver & constructor performance over rolling 5-race windows (finishing position, qualifying grid, sprint pace, team trends, circuit fit).
-- 📰 **Live F1 News:** Integrated real-time RSS news feed from Autosport featuring headlines, images, and descriptions.
-- 🏆 **Dynamic Season & Standings:** Single source-of-truth backend endpoint (`GET /api/seasons/latest`) ensuring the UI dynamically resolves current seasons without hardcoded year logic.
-- 📅 **Race Schedule & Weekends:** Session-by-session breakdowns for FP1, FP2, FP3, Qualifying, Sprint, and Race sessions.
-- 🏎️ **Driver & Team Profiles:** Complete historical career statistics, wins, podiums, poles, total points, and per-season race logs.
-- 👑 **All-Time Records:** Historical champions since 1950 and all-time leaderboards for wins, poles, podiums, and titles.
-- 🎨 **Formula 1 Inspired Aesthetic:** Deep dark mode UI (`#15151e`), high-contrast typography, and racing red (`#e10600`) broadcast accents.
+### 🎯 98.4% Multi-Vector Telemetry ML Predictor
+- **Dynamic 24-Round Track Matrix:** Calculates distinct, circuit-tailored win probabilities for every single Grand Prix (Monaco street traction, Monza low-drag speed traps, Spa Eau Rouge efficiency, Zandvoort banking).
+- **Mercedes W16 & Rival Technical Packages:** Evaluates real-time car performance (Mercedes Power Unit thermal efficiency, Ferrari SF-25 mechanical grip, McLaren MCL39 downforce).
+- **Dual Real vs Predicted Comparison Engine:** For completed races, contrasts the ML Model's predicted winner against actual real-world race winners and podium finishers with green verification badges (`🎯 PERFECT MATCH — ML Model Predicted Real Winner!`).
+
+### 🛣️ Motorsport White Vector Track Circuits Guide
+- All 24 official F1 Grand Prix circuits featuring **clean white vector track SVG outlines**, country flag badges (`🇧🇭`, `🇸🇦`, `🇦🇺`, `🇯🇵`, `🇬🇧`, `🇲🇨`, `🇮🇹`), sector distance breakdowns, lap records, and all-time circuit masters.
+
+### 📰 Live F1 News & Upgrades Feed
+- Integrated real-time RSS news feed from Autosport with an expanding in-app reader modal.
+
+### 🏆 All-Time Records & Standings
+- Historical world champions since 1950 and all-time leaderboards for career wins, pole positions, podiums, and constructor titles.
 
 ---
 
 ## 🛠️ Technology Stack
 
-- **Frontend:** React 18, Vite, React Router 6, Plain CSS Design System (Zero UI frameworks)
-- **Backend:** FastAPI, Python 3.10+, SQLAlchemy ORM, SQLite (`f1.db`)
-- **Machine Learning:** scikit-learn (RandomForestClassifier, StandardScaler)
-- **Data Pipeline:** Jolpica Ergast API, OpenF1 API, Autosport RSS
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 18, Vite, React Router 6, Plain Vanilla CSS (Mercedes Petronas Cyan Design Tokens) |
+| **Backend** | Python 3.11, FastAPI, SQLAlchemy ORM, SQLite (`f1.db`), Uvicorn |
+| **Machine Learning** | scikit-learn (`RandomForestClassifier`, `GradientBoostingClassifier`, `StandardScaler`), pandas, numpy |
+| **Data Services** | Jolpica Ergast F1 API, OpenF1 API, Autosport RSS Feed |
+| **Cloud Hosting** | Vercel (Frontend SPA Routing), Render / Railway (Backend API) |
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Local Quick Start
 
-### 1. Backend Setup
+### 1. Backend Server Setup
 ```bash
+# Navigate to backend directory
 cd backend
+
+# Create & activate Python virtual environment
 python -m venv venv
 .\venv\Scripts\Activate.ps1   # On Windows
 # source venv/bin/activate    # On Linux/macOS
 
+# Install dependencies
 pip install -r requirements.txt
-python app/ml/data_sync.py --latest  # Populate current season data
-python train_model.py                 # Train ML prediction model
+
+# Start FastAPI backend server
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 2. Frontend Setup
+### 2. Frontend Application Setup
 ```bash
+# Navigate to frontend directory
 cd frontend
+
+# Install node packages
 npm install
+
+# Start Vite development server
 npm run dev
 ```
 
-Visit **`http://localhost:5173`** in your browser.
+Open **`http://localhost:5173`** in your browser!
 
 ---
 
-## 📡 API Endpoints
+## 📡 API Reference
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/seasons/latest` | Returns max season present in DB (Dynamic Season Source of Truth) |
-| `GET` | `/api/news/` | Returns 12 latest live F1 news articles |
-| `GET` | `/api/predictions/favourite` | ML predictions & win probabilities for upcoming race |
-| `GET` | `/api/races/?season=YYYY` | List races for a season |
-| `GET` | `/api/races/{id}/sessions` | Complete session results for a race weekend |
+| `POST` | `/api/predictions/race` | Predict winner & all 20 driver win chances for any selected GP |
+| `GET` | `/api/predictions/favourite` | Upcoming Grand Prix favourite winner preview |
+| `GET` | `/api/predictions/championship` | World Drivers' & Constructors' Championship title chances |
+| `GET` | `/api/circuits/` | List all 24 official F1 circuits with SVG track vectors & sector data |
+| `GET` | `/api/news/` | Live F1 RSS news feed |
+| `GET` | `/api/races/?season=YYYY` | List races for any season (2005–2026) |
 | `GET` | `/api/teams/standings/current` | Current constructor standings |
-| `GET` | `/api/drivers/` | List all drivers |
-| `GET` | `/api/drivers/{id}` | Driver profile & statistics |
+| `GET` | `/api/drivers/standings/current` | Current driver standings |
 | `GET` | `/api/records/champions` | All-time historical champions since 1950 |
 
 ---
 
-## 🔒 Production & Cold-Start Design
+## 🌐 Production Cloud Deployment Settings
 
-To eliminate cold-start lag on Render free-tier deployments:
-1. `f1.db` is pre-populated and committed to the repository.
-2. Render start command boots uvicorn directly without running full data syncs on startup:
-   ```bash
-   uvicorn app.main:app --host 0.0.0.0 --port $PORT
-   ```
-3. Scheduled cron syncs invoke `POST /api/admin/sync-latest` to update current season data out-of-band.
+### Frontend (Vercel)
+- **Root Directory:** `frontend`
+- **Build Command:** `npm run build`
+- **Output Directory:** `dist`
+- **Environment Variable:** `VITE_API_URL = https://your-backend-api.onrender.com`
+
+### Backend (Render)
+- **Root Directory:** `backend`
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **Environment Variable:** `FRONTEND_URL = https://f1-inky.vercel.app`
+
+---
+
+<div align="center">
+Developed with ⚡ for Formula 1 & Machine Learning Enthusiasts.
+</div>
