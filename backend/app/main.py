@@ -49,11 +49,11 @@ model = F1PredictionModel()
 @app.on_event("startup")
 async def startup():
     """Initialize model on startup"""
-    print("🚀 Starting F1 Prediction API...")
+    print("Starting F1 Prediction API...")
     if not model.load_model():
-        print("⚠️  Model not found, training new model...")
+        print("Model not found, training new model...")
         model.train()
-    print("✓ API ready!")
+    print("API ready!")
 
 @app.get("/")
 async def root():
