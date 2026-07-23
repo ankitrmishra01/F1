@@ -8,14 +8,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Import routes
-from app.routes import predictions, races, teams, drivers, records, admin
+from app.routes import predictions, races, teams, drivers, records, admin, seasons, news
 from app.ml.model import F1PredictionModel
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="F1 Race Prediction API",
-    description="ML-powered F1 race winner predictions",
-    version="1.0.0"
+    title="GridForm API",
+    description="ML-powered F1 race predictions & analytics",
+    version="2.0.0"
 )
 
 # Configure CORS
@@ -42,6 +42,8 @@ app.include_router(teams.router)
 app.include_router(drivers.router)
 app.include_router(records.router)
 app.include_router(admin.router)
+app.include_router(seasons.router)
+app.include_router(news.router)
 
 # Initialize ML model
 model = F1PredictionModel()
@@ -49,7 +51,7 @@ model = F1PredictionModel()
 @app.on_event("startup")
 async def startup():
     """Initialize model on startup"""
-    print("Starting F1 Prediction API...")
+    print("Starting GridForm API...")
     if not model.load_model():
         print("Model not found, training new model...")
         model.train()
@@ -60,12 +62,14 @@ async def root():
     """API health check"""
     return {
         "status": "online",
-        "service": "F1 Race Prediction API",
-        "version": "1.0.0",
+        "service": "GridForm API",
+        "version": "2.0.0",
         "endpoints": {
             "predictions": "/api/predictions",
             "races": "/api/races",
             "teams": "/api/teams",
+            "seasons": "/api/seasons",
+            "news": "/api/news",
             "docs": "/docs"
         }
     }

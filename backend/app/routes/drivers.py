@@ -18,22 +18,29 @@ def get_driver_profile(driver_id: str, db: Session = Depends(get_db)):
     if not driver:
         raise HTTPException(status_code=404, detail="Driver not found")
         
-    # Get all results for this driver in 'Race' sessions
-    race_results = db.query(Result, F1Session, Race).join(F1Session).join(Race).filter(
-        Result.driver_id == driver_id,
-        F1Session.session_name == "Race"
-    ).all()
+    # Get all results for this driver in 'Race' sessions — explicit select_from to avoid ambiguity
+    race_results = db.query(Result, F1Session, Race)\
+        .select_from(Result)\
+        .join(F1Session, Result.session_id == F1Session.session_id)\
+        .join(Race, F1Session.race_id == Race.race_id)\
+        .filter(
+            Result.driver_id == driver_id,
+            F1Session.session_name == "Race"
+        ).all()
     
     wins = sum(1 for r, _, _ in race_results if r.position == 1)
     podiums = sum(1 for r, _, _ in race_results if r.position and r.position <= 3)
     total_points = sum(r.points for r, _, _ in race_results if r.points)
     
     # Poles from 'Qualifying' sessions
-    quali_results = db.query(Result).join(F1Session).filter(
-        Result.driver_id == driver_id,
-        F1Session.session_name == "Qualifying",
-        Result.position == 1
-    ).count()
+    quali_results = db.query(Result)\
+        .select_from(Result)\
+        .join(F1Session, Result.session_id == F1Session.session_id)\
+        .filter(
+            Result.driver_id == driver_id,
+            F1Session.session_name == "Qualifying",
+            Result.position == 1
+        ).count()
     
     # Per-season breakdown
     seasons = {}
@@ -61,10 +68,14 @@ def get_driver_profile(driver_id: str, db: Session = Depends(get_db)):
 @router.get("/{driver_id}/races")
 def get_driver_races(driver_id: str, season: int = None, db: Session = Depends(get_db)):
     """Full race-by-race history"""
-    query = db.query(Result, F1Session, Race).join(F1Session).join(Race).filter(
-        Result.driver_id == driver_id,
-        F1Session.session_name == "Race"
-    )
+    query = db.query(Result, F1Session, Race)\
+        .select_from(Result)\
+        .join(F1Session, Result.session_id == F1Session.session_id)\
+        .join(Race, F1Session.race_id == Race.race_id)\
+        .filter(
+            Result.driver_id == driver_id,
+            F1Session.session_name == "Race"
+        )
     if season:
         query = query.filter(Race.season == season)
         

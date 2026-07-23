@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { recordsAPI } from "../api/client";
-import "./Standings.css"; // Reuse table styling
+import { recordsAPI, seasonsAPI } from "../api/client";
+import "./GridTable.css";
 
 export default function AllTimeRecords() {
   const [data, setData] = useState(null);
@@ -35,112 +35,62 @@ export default function AllTimeRecords() {
   if (error) return <div className="error-message">{error}</div>;
   if (!data || !champions) return null;
 
+  const renderTable = (title, items, col1, col2) => (
+    <div className="grid-section" style={{ flex: 1, minWidth: '280px' }}>
+      <h3 style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border-color)', margin: 0 }}>{title}</h3>
+      <table className="grid-table">
+        <thead>
+          <tr><th>{col1}</th><th style={{textAlign:'right'}}>{col2}</th></tr>
+        </thead>
+        <tbody>
+          {items.map((d, i) => (
+            <tr key={i} className={i < 3 ? "podium" : ""}>
+              <td>{d.name}</td>
+              <td style={{textAlign:'right', fontWeight: 700}}>{d.total}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
   return (
-    <div className="standings-container">
-      <h2>👑 All-Time F1 Records</h2>
-      <p style={{ color: '#888', marginBottom: '20px' }}>Every champion since 1950 & all-time leaderboards.</p>
+    <div className="grid-container">
+      <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '8px' }}>All-Time Records</h1>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>Every champion since 1950 and all-time leaderboards.</p>
 
-      <div className="standings-layout" style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        
-        <div className="standings-table-container" style={{ flex: 1, minWidth: '300px' }}>
-          <h3>Most Championships (Drivers)</h3>
-          <table className="standings-table">
-            <thead>
-              <tr><th>Driver</th><th>Titles</th></tr>
-            </thead>
-            <tbody>
-              {data.championships.drivers.map((d, i) => (
-                <tr key={i}><td>{d.name}</td><td>{d.total}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="standings-table-container" style={{ flex: 1, minWidth: '300px' }}>
-          <h3>Most Championships (Constructors)</h3>
-          <table className="standings-table">
-            <thead>
-              <tr><th>Team</th><th>Titles</th></tr>
-            </thead>
-            <tbody>
-              {data.championships.constructors.map((t, i) => (
-                <tr key={i}><td>{t.name}</td><td>{t.total}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '24px' }}>
+        {renderTable("Most Championships (Drivers)", data.championships.drivers, "Driver", "Titles")}
+        {renderTable("Most Championships (Constructors)", data.championships.constructors, "Team", "Titles")}
       </div>
 
-      <div className="standings-layout" style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginTop: '20px' }}>
-        
-        <div className="standings-table-container" style={{ flex: 1, minWidth: '200px' }}>
-          <h3>Most Race Wins</h3>
-          <table className="standings-table">
-            <thead>
-              <tr><th>Driver</th><th>Wins</th></tr>
-            </thead>
-            <tbody>
-              {data.wins.drivers.map((d, i) => (
-                <tr key={i}><td>{d.name}</td><td>{d.total}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="standings-table-container" style={{ flex: 1, minWidth: '200px' }}>
-          <h3>Most Pole Positions</h3>
-          <table className="standings-table">
-            <thead>
-              <tr><th>Driver</th><th>Poles</th></tr>
-            </thead>
-            <tbody>
-              {data.poles.map((d, i) => (
-                <tr key={i}><td>{d.name}</td><td>{d.total}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="standings-table-container" style={{ flex: 1, minWidth: '200px' }}>
-          <h3>Most Podiums</h3>
-          <table className="standings-table">
-            <thead>
-              <tr><th>Driver</th><th>Podiums</th></tr>
-            </thead>
-            <tbody>
-              {data.podiums.map((d, i) => (
-                <tr key={i}><td>{d.name}</td><td>{d.total}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '24px' }}>
+        {renderTable("Most Race Wins", data.wins.drivers, "Driver", "Wins")}
+        {renderTable("Most Pole Positions", data.poles, "Driver", "Poles")}
+        {renderTable("Most Podiums", data.podiums, "Driver", "Podiums")}
       </div>
 
-      <h3 style={{ marginTop: '40px' }}>Historical Champions By Season</h3>
-      <div className="standings-layout" style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        <div className="standings-table-container" style={{ flex: 1, minWidth: '300px', maxHeight: '500px', overflowY: 'auto' }}>
-          <h4>Drivers' Champions</h4>
-          <table className="standings-table">
-            <thead>
-              <tr><th>Season</th><th>Champion</th></tr>
-            </thead>
+      <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '16px' }}>Historical Champions By Season</h2>
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+        <div className="grid-section" style={{ flex: 1, minWidth: '300px', maxHeight: '500px', overflowY: 'auto' }}>
+          <h3 style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border-color)', margin: 0, position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>Drivers' Champions</h3>
+          <table className="grid-table">
+            <thead><tr><th>Season</th><th>Champion</th></tr></thead>
             <tbody>
               {champions.drivers.map((c, i) => (
-                <tr key={i}><td>{c.season}</td><td>{c.champion}</td></tr>
+                <tr key={i}><td style={{fontWeight: 600}}>{c.season}</td><td>{c.champion}</td></tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        <div className="standings-table-container" style={{ flex: 1, minWidth: '300px', maxHeight: '500px', overflowY: 'auto' }}>
-          <h4>Constructors' Champions</h4>
-          <table className="standings-table">
-            <thead>
-              <tr><th>Season</th><th>Champion</th></tr>
-            </thead>
+        <div className="grid-section" style={{ flex: 1, minWidth: '300px', maxHeight: '500px', overflowY: 'auto' }}>
+          <h3 style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border-color)', margin: 0, position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>Constructors' Champions</h3>
+          <table className="grid-table">
+            <thead><tr><th>Season</th><th>Champion</th></tr></thead>
             <tbody>
               {champions.constructors.map((c, i) => (
-                <tr key={i}><td>{c.season}</td><td>{c.champion}</td></tr>
+                <tr key={i}><td style={{fontWeight: 600}}>{c.season}</td><td>{c.champion}</td></tr>
               ))}
             </tbody>
           </table>

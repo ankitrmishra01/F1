@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { driversAPI } from "../api/client";
-import "./Standings.css";
+import "./GridTable.css";
 
 export default function DriverProfile() {
   const { driverId } = useParams();
@@ -20,7 +20,10 @@ export default function DriverProfile() {
       setLoading(true);
       const [profRes, raceRes] = await Promise.all([
         driversAPI.getDriverProfile(driverId),
-        driversAPI.getDriverRaces(driverId, season === "all" ? null : season)
+        driversAPI.getDriverRaces(
+          driverId,
+          season === "all" ? null : season
+        ),
       ]);
       setProfile(profRes.data);
       setRaces(raceRes.data);
@@ -33,53 +36,72 @@ export default function DriverProfile() {
     }
   };
 
-  if (loading) return <div className="loading">Loading driver...</div>;
-  if (error) return <div className="error-message">{error}</div>;
+  if (loading) return <div className="grid-loading">Loading driver...</div>;
+  if (error) return <div className="grid-error">{error}</div>;
   if (!profile) return null;
 
+  const stats = profile.stats || {};
+  const seasonKeys = profile.seasons
+    ? Object.keys(profile.seasons).sort((a, b) => b - a)
+    : [];
+
   return (
-    <div className="standings-container">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
-        <div style={{ width: '100px', height: '100px', backgroundColor: '#333', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px' }}>
-          🏎️
+    <div className="grid-container">
+      <div style={{ marginBottom: "24px" }}>
+        <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginBottom: "4px" }}>
+          {profile.name}
+        </h2>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+          {profile.nationality}
+          {profile.date_of_birth ? ` \u2022 Born: ${profile.date_of_birth}` : ""}
+        </p>
+      </div>
+
+      <div className="stat-cards">
+        <div className="stat-card">
+          <div className="stat-value">{stats.wins ?? 0}</div>
+          <div className="stat-label">Wins</div>
         </div>
-        <div>
-          <h2>{profile.name}</h2>
-          <p style={{ color: '#888' }}>{profile.nationality} • Born: {profile.date_of_birth}</p>
+        <div className="stat-card">
+          <div className="stat-value">{stats.podiums ?? 0}</div>
+          <div className="stat-label">Podiums</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{stats.poles ?? 0}</div>
+          <div className="stat-label">Poles</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{stats.total_points ?? 0}</div>
+          <div className="stat-label">Total Points</div>
         </div>
       </div>
 
-      <div className="standings-layout" style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
-        <div className="standings-table-container" style={{ flex: 1, padding: '20px', textAlign: 'center' }}>
-          <h3>Wins</h3>
-          <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--primary-color)' }}>{profile.stats.wins}</div>
+      <div className="grid-section">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "1rem 1.5rem",
+            borderBottom: "1px solid var(--border-color)",
+          }}
+        >
+          <h3 style={{ margin: 0, padding: 0, border: "none" }}>Race History</h3>
+          <select
+            className="season-select"
+            value={season}
+            onChange={(e) => setSeason(e.target.value)}
+          >
+            <option value="all">All Seasons</option>
+            {seasonKeys.map((y) => (
+              <option key={y} value={y}>
+                {y} Season
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="standings-table-container" style={{ flex: 1, padding: '20px', textAlign: 'center' }}>
-          <h3>Podiums</h3>
-          <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--primary-color)' }}>{profile.stats.podiums}</div>
-        </div>
-        <div className="standings-table-container" style={{ flex: 1, padding: '20px', textAlign: 'center' }}>
-          <h3>Poles</h3>
-          <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--primary-color)' }}>{profile.stats.poles}</div>
-        </div>
-        <div className="standings-table-container" style={{ flex: 1, padding: '20px', textAlign: 'center' }}>
-          <h3>Total Points</h3>
-          <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--primary-color)' }}>{profile.stats.total_points}</div>
-        </div>
-      </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3>Race History</h3>
-        <select value={season} onChange={(e) => setSeason(e.target.value)} style={{ padding: '8px', borderRadius: '4px', background: '#333', color: '#fff', border: '1px solid #444' }}>
-          <option value="all">All Seasons (2005+)</option>
-          {Object.keys(profile.seasons).sort((a,b) => b-a).map(y => (
-            <option key={y} value={y}>{y} Season</option>
-          ))}
-        </select>
-      </div>
-
-      <div className="standings-table-container" style={{ marginTop: '10px' }}>
-        <table className="standings-table">
+        <table className="grid-table">
           <thead>
             <tr>
               <th>Season</th>
@@ -91,15 +113,19 @@ export default function DriverProfile() {
           </thead>
           <tbody>
             {races.length === 0 ? (
-              <tr><td colSpan="5">No race history found.</td></tr>
+              <tr>
+                <td colSpan="5" style={{ textAlign: "center", color: "var(--text-muted)" }}>
+                  No race history found.
+                </td>
+              </tr>
             ) : (
               races.map((r, i) => (
-                <tr key={i}>
+                <tr key={i} className={r.position && r.position <= 3 ? "podium" : ""}>
                   <td>{r.season}</td>
                   <td>{r.race_name}</td>
-                  <td>{r.position || '-'}</td>
+                  <td>{r.position || "-"}</td>
                   <td>{r.points}</td>
-                  <td>{r.status || '-'}</td>
+                  <td>{r.status || "-"}</td>
                 </tr>
               ))
             )}

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { teamsAPI, driversAPI } from "../api/client";
-import "./Standings.css";
+import "./GridTable.css";
 
 export default function Standings() {
   const [teamStandings, setTeamStandings] = useState([]);
@@ -30,55 +30,60 @@ export default function Standings() {
     }
   };
 
-  if (loading) return <div className="standings loading">🔄 Loading...</div>;
-  if (error) return <div className="standings error">{error}</div>;
+  if (loading) return <div className="loading">Loading standings...</div>;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
-    <div className="standings" style={{ display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
+    <div className="grid-container" style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
       
-      <div style={{ flex: 1, minWidth: '300px' }}>
-        <h2>🏆 Current Team Standings</h2>
-        <div className="standings-table">
-          <div className="standings-header">
-            <div className="col-pos">Pos</div>
-            <div className="col-team">Team</div>
-            <div className="col-points">Points</div>
-          </div>
-          {teamStandings.map((team, idx) => (
-            <div
-              key={team.team}
-              className={`standings-row ${idx < 3 ? "podium" : ""}`}
-            >
-              <div className="col-pos">{idx + 1}</div>
-              <div className="col-team">
-                <Link to={`/team/${team.team}`} style={{ color: 'inherit', textDecoration: 'none' }}>
-                  {team.team}
-                </Link>
-              </div>
-              <div className="col-points">{team.points}</div>
-            </div>
-          ))}
+      <div style={{ flex: 1, minWidth: '360px' }}>
+        <div className="grid-section">
+          <h2 style={{ padding: '1rem 1.5rem', margin: 0, borderBottom: '1px solid var(--border-color)' }}>Constructor Standings</h2>
+          <table className="grid-table">
+            <thead>
+              <tr>
+                <th style={{ width: '50px' }}>Pos</th>
+                <th>Team</th>
+                <th style={{ textAlign: 'right' }}>Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              {teamStandings.map((team, idx) => (
+                <tr key={team.team} className={idx < 3 ? "podium" : ""}>
+                  <td style={{ fontWeight: 700 }}>{idx + 1}</td>
+                  <td>
+                    <Link to={`/team/${team.team}`}>{team.team}</Link>
+                  </td>
+                  <td style={{ textAlign: 'right', fontWeight: 600, color: 'var(--accent-red)' }}>{team.points}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div style={{ flex: 1, minWidth: '300px' }}>
-        <h2>🏎️ All Drivers (2005+)</h2>
-        <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-          <div className="standings-table">
-            <div className="standings-header">
-              <div className="col-team">Driver Name</div>
-              <div className="col-points">Nationality</div>
-            </div>
-            {drivers.map((driver) => (
-              <div key={driver.driver_id} className="standings-row">
-                <div className="col-team">
-                  <Link to={`/driver/${driver.driver_id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
-                    {driver.name}
-                  </Link>
-                </div>
-                <div className="col-points">{driver.nationality}</div>
-              </div>
-            ))}
+      <div style={{ flex: 1, minWidth: '360px' }}>
+        <div className="grid-section">
+          <h2 style={{ padding: '1rem 1.5rem', margin: 0, borderBottom: '1px solid var(--border-color)' }}>All Drivers</h2>
+          <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
+            <table className="grid-table">
+              <thead>
+                <tr>
+                  <th>Driver</th>
+                  <th>Nationality</th>
+                </tr>
+              </thead>
+              <tbody>
+                {drivers.map((driver) => (
+                  <tr key={driver.driver_id}>
+                    <td>
+                      <Link to={`/driver/${driver.driver_id}`}>{driver.name}</Link>
+                    </td>
+                    <td style={{ color: 'var(--text-secondary)' }}>{driver.nationality}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
+import Home from "./components/Home";
 import Standings from "./components/Standings";
 import RaceCalendar from "./components/RaceCalendar";
 import DriverProfile from "./components/DriverProfile";
 import TeamProfile from "./components/TeamProfile";
 import RaceWeekend from "./components/RaceWeekend";
 import AllTimeRecords from "./components/AllTimeRecords";
-import FavouriteToWin from "./components/FavouriteToWin";
 import { healthAPI } from "./api/client";
 import "./App.css";
 
@@ -32,61 +32,49 @@ function App() {
     }
   };
 
+  const navItems = [
+    { path: "/", label: "Home", match: (p) => p === "/" },
+    { path: "/standings", label: "Standings", match: (p) => p.includes("/standings") || p.includes("/driver") || p.includes("/team") },
+    { path: "/calendar", label: "Schedule", match: (p) => p.includes("/calendar") || p.includes("/race") },
+    { path: "/records", label: "Records", match: (p) => p === "/records" },
+  ];
+
   return (
     <div className="app">
-      <header className="header">
-        <div className="header-content">
-          <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <h1>🏁 F1 Race Winner Predictor</h1>
-          </Link>
-          <p className="subtitle">ML-Powered Predictions for Formula 1 Races</p>
-
-          <div className="status-bar">
-            <span className={`status-indicator ${apiStatus}`}></span>
-            <span className="status-text">
-              API: {apiStatus === "online" ? "✓ Online" : "✗ Offline"}
-            </span>
-          </div>
+      <header className="topbar">
+        <Link to="/" className="topbar-brand">
+          <span className="logo-text">
+            Grid<span className="logo-accent">Form</span>
+          </span>
+        </Link>
+        <div className="topbar-status">
+          <span className={`status-dot ${apiStatus}`}></span>
+          <span>{apiStatus === "online" ? "LIVE" : "OFFLINE"}</span>
         </div>
       </header>
+
+      <nav className="navbar">
+        {navItems.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`nav-link ${item.match(location.pathname) ? "active" : ""}`}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </nav>
 
       {error && (
         <div className="error-banner">
           <p>{error}</p>
-          <button onClick={checkAPIHealth}>Retry Connection</button>
+          <button onClick={checkAPIHealth}>Retry</button>
         </div>
       )}
 
-      <nav className="navigation">
-        <Link
-          to="/"
-          className={`nav-button ${location.pathname === "/" ? "active" : ""}`}
-        >
-          🎯 Predictions
-        </Link>
-        <Link
-          to="/standings"
-          className={`nav-button ${location.pathname.includes("/standings") || location.pathname.includes("/team") || location.pathname.includes("/driver") ? "active" : ""}`}
-        >
-          🏆 Standings & Profiles
-        </Link>
-        <Link
-          to="/calendar"
-          className={`nav-button ${location.pathname.includes("/calendar") || location.pathname.includes("/race") ? "active" : ""}`}
-        >
-          📅 Calendar
-        </Link>
-        <Link
-          to="/records"
-          className={`nav-button ${location.pathname === "/records" ? "active" : ""}`}
-        >
-          👑 All-Time Records
-        </Link>
-      </nav>
-
       <main className="main-content">
         <Routes>
-          <Route path="/" element={<FavouriteToWin />} />
+          <Route path="/" element={<Home />} />
           <Route path="/standings" element={<Standings />} />
           <Route path="/calendar" element={<RaceCalendar />} />
           <Route path="/driver/:driverId" element={<DriverProfile />} />
@@ -97,7 +85,7 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>🏎️ F1 Analytics System | Powered by scikit-learn & Jolpica/OpenF1</p>
+        <p>GridForm | Powered by scikit-learn, Jolpica & OpenF1</p>
       </footer>
     </div>
   );

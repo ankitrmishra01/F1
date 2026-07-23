@@ -286,7 +286,8 @@ def sync_openf1_practices(db, season):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--season", type=int, help="Specific season to sync")
-    parser.add_argument("--all", action="store_true", help="Sync 2005-present")
+    parser.add_argument("--all", action="store_true", help="Full rebuild: sync all seasons from 2005 to present")
+    parser.add_argument("--latest", action="store_true", help="Sync the current year's season (auto-detected)")
     args = parser.parse_args()
     
     db = SessionLocal()
@@ -296,14 +297,19 @@ def main():
     
     sync_champions(db, 1950)
     
+    current_year = datetime.now().year
+    
     if args.season:
         sync_season(db, args.season)
+    elif args.latest:
+        print(f"Auto-detected current season: {current_year}")
+        sync_season(db, current_year)
     elif args.all:
-        current_year = datetime.now().year
-        for y in range(2022, current_year + 1):
+        for y in range(2005, current_year + 1):
             sync_season(db, y)
     else:
-        print("Please specify --season YYYY or --all")
+        print("Please specify --season YYYY, --latest, or --all")
         
 if __name__ == "__main__":
     main()
+

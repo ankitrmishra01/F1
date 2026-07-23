@@ -49,6 +49,14 @@ export const recordsAPI = {
   getAllTime: () => api.get("/api/records/all-time"),
 };
 
+export const seasonsAPI = {
+  getLatest: () => api.get("/api/seasons/latest"),
+};
+
+export const newsAPI = {
+  getNews: () => api.get("/api/news/"),
+};
+
 export const healthAPI = {
   checkHealth: () => api.get("/health"),
   getStatus: () => api.get("/api/v1/status"),
