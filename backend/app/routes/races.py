@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db, Race, Session as F1Session, Result, Driver, Team
+from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/api/races", tags=["Races"])
 
@@ -14,7 +15,6 @@ def get_races(season: int = None, db: Session = Depends(get_db)):
     
     result_list = []
     for r in races:
-        # Check if Race session has completed results
         race_session = db.query(F1Session).filter_by(race_id=r.race_id, session_name="Race").first()
         winner_name = None
         podium_drivers = []
@@ -52,7 +52,7 @@ def get_races(season: int = None, db: Session = Depends(get_db)):
 
 @router.get("/{race_id}/sessions")
 def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
-    """All sessions for one race weekend, with results"""
+    """All sessions for one race weekend, with results or timetable if upcoming"""
     race = db.query(Race).filter(Race.race_id == race_id).first()
     if not race:
         raise HTTPException(status_code=404, detail="Race not found")
@@ -64,9 +64,12 @@ def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
         "race_name": race.race_name,
         "season": race.season,
         "country": race.country,
+        "circuit_name": race.circuit_name,
+        "is_upcoming": False,
         "sessions": {}
     }
     
+    has_results = False
     for s in sessions:
         results_data = []
         results = db.query(Result, Driver, Team)\
@@ -77,18 +80,32 @@ def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
                     .order_by(Result.position.asc())\
                     .all()
                     
-        for r, d, t in results:
-            results_data.append({
-                "driver_id": d.driver_id,
-                "driver_name": f"{d.given_name} {d.family_name}",
-                "team_id": t.team_id,
-                "team_name": t.name,
-                "position": r.position,
-                "points": r.points,
-                "grid": r.grid,
-                "status": r.status
-            })
-            
-        response["sessions"][s.session_name] = results_data
+        if results:
+            has_results = True
+            for r, d, t in results:
+                results_data.append({
+                    "driver_id": d.driver_id,
+                    "driver_name": f"{d.given_name} {d.family_name}",
+                    "team_id": t.team_id,
+                    "team_name": t.name,
+                    "position": r.position,
+                    "points": r.points,
+                    "grid": r.grid,
+                    "status": r.status
+                })
+            response["sessions"][s.session_name] = results_data
+
+    # If upcoming race with no recorded session results, generate weekend timetable schedule
+    if not has_results:
+        response["is_upcoming"] = True
+        race_dt = datetime.strptime(race.date, "%Y-%m-%d") if race.date else datetime.now()
         
+        response["timetable"] = [
+            {"session": "Practice 1 (FP1)", "date": (race_dt - timedelta(days=2)).strftime("%a, %d %b %Y"), "time": "13:30 Local / 11:30 UTC"},
+            {"session": "Practice 2 (FP2)", "date": (race_dt - timedelta(days=2)).strftime("%a, %d %b %Y"), "time": "17:00 Local / 15:00 UTC"},
+            {"session": "Practice 3 (FP3)", "date": (race_dt - timedelta(days=1)).strftime("%a, %d %b %Y"), "time": "12:30 Local / 10:30 UTC"},
+            {"session": "Qualifying", "date": (race_dt - timedelta(days=1)).strftime("%a, %d %b %Y"), "time": "16:00 Local / 14:00 UTC"},
+            {"session": "Grand Prix Race", "date": race_dt.strftime("%a, %d %b %Y"), "time": "15:00 Local / 13:00 UTC"}
+        ]
+
     return response

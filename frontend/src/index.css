@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --bg-primary: #0a0e17;
-  --bg-secondary: #0f172a;
-  --bg-card: #1e293b;
-  --bg-card-hover: #24334d;
+  --bg-primary: #09090b;
+  --bg-secondary: #121824;
+  --bg-card: #141c2c;
+  --bg-card-hover: #1b263b;
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
@@ -12,14 +12,14 @@
   --accent-cyan: #38bdf8;
   --accent-cyan-bright: #00f2fe;
   --accent-blue: #3b82f6;
+  --accent-indigo: #6366f1;
   --accent-emerald: #10b981;
   --accent-gold: #f59e0b;
-  --accent-purple: #a855f7;
   
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-subtle: rgba(255, 255, 255, 0.04);
-  --glow-cyan: 0 0 20px rgba(56, 189, 248, 0.25);
-  --glow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --border-color: rgba(255, 255, 255, 0.09);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --glow-cyan: 0 0 20px rgba(56, 189, 248, 0.2);
+  --glow-card: 0 14px 40px -10px rgba(0, 0, 0, 0.7);
 
   font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
@@ -44,8 +44,8 @@ body {
   min-height: 100vh;
   background-color: var(--bg-primary);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.04) 0px, transparent 40%),
+    radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.04) 0px, transparent 40%);
   background-attachment: fixed;
 }
 
@@ -66,22 +66,26 @@ a:hover {
   color: var(--accent-cyan);
 }
 
+/* Pill Chip Buttons (CineSense AI aesthetic) */
 button {
-  border-radius: 6px;
-  border: none;
-  padding: 0.6em 1.2em;
-  font-size: 0.9em;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  padding: 0.55em 1.25em;
+  font-size: 0.85em;
   font-weight: 600;
   font-family: inherit;
   background-color: var(--bg-card);
   color: var(--text-primary);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 button:hover {
-  background-color: var(--accent-cyan);
-  color: #040914;
+  border-color: var(--accent-cyan);
+  background-color: var(--bg-card-hover);
   box-shadow: var(--glow-cyan);
 }
 
@@ -93,7 +97,7 @@ button:hover {
   background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #1e293b;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {

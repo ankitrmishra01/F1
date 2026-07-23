@@ -24,6 +24,7 @@ export const predictionAPI = {
     }),
     
   getFavourite: () => api.get("/api/predictions/favourite"),
+  getChampionship: () => api.get("/api/predictions/championship"),
 };
 
 export const racesAPI = {
