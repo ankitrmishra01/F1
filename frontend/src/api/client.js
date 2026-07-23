@@ -11,33 +11,42 @@ const api = axios.create({
 
 export const predictionAPI = {
   predictWinner: (
-    raceId,
-    season,
-    location,
-    weather = "clear",
-    trackType = "permanent",
+    team,
+    country_name_length = 10,
+    track_distance = 300,
+    circuit_type = "permanent",
   ) =>
     api.post("/api/predictions/predict", {
-      race_id: raceId,
-      season,
-      location,
-      weather,
-      track_type: trackType,
+      team,
+      country_name_length,
+      track_distance,
+      circuit_type,
     }),
-
-  getModelInfo: () => api.get("/api/predictions/model-info"),
+    
+  getFavourite: () => api.get("/api/predictions/favourite"),
 };
 
 export const racesAPI = {
-  getAllRaces: () => api.get("/api/races/"),
-  getRace: (raceId) => api.get(`/api/races/${raceId}`),
-  getUpcomingRaces: () => api.get("/api/races/upcoming"),
+  getAllRaces: (season = null) => api.get(`/api/races/${season ? '?season='+season : ''}`),
+  getRaceSessions: (raceId) => api.get(`/api/races/${raceId}/sessions`),
 };
 
 export const teamsAPI = {
   getAllTeams: () => api.get("/api/teams/"),
-  getTeam: (teamId) => api.get(`/api/teams/${teamId}`),
+  getTeamProfile: (teamId) => api.get(`/api/teams/${teamId}`),
+  getTeamRaces: (teamId, season = null) => api.get(`/api/teams/${teamId}/races${season ? '?season='+season : ''}`),
   getStandings: () => api.get("/api/teams/standings/current"),
+};
+
+export const driversAPI = {
+  getAllDrivers: () => api.get("/api/drivers/"),
+  getDriverProfile: (driverId) => api.get(`/api/drivers/${driverId}`),
+  getDriverRaces: (driverId, season = null) => api.get(`/api/drivers/${driverId}/races${season ? '?season='+season : ''}`),
+};
+
+export const recordsAPI = {
+  getChampions: () => api.get("/api/records/champions"),
+  getAllTime: () => api.get("/api/records/all-time"),
 };
 
 export const healthAPI = {

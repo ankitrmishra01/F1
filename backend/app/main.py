@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Import routes
-from app.routes import predictions, races, teams
+from app.routes import predictions, races, teams, drivers, records, admin
 from app.ml.model import F1PredictionModel
 
 # Initialize FastAPI app
@@ -39,6 +39,9 @@ app.add_middleware(
 app.include_router(predictions.router)
 app.include_router(races.router)
 app.include_router(teams.router)
+app.include_router(drivers.router)
+app.include_router(records.router)
+app.include_router(admin.router)
 
 # Initialize ML model
 model = F1PredictionModel()

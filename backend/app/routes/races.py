@@ -1,42 +1,66 @@
-from fastapi import APIRouter, HTTPException
-from typing import List
-from app.schemas import Race
-from app.ml.data_processor import DataProcessor
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.database import get_db, Race, Session as F1Session, Result, Driver, Team
 
-router = APIRouter(prefix="/api/races", tags=["races"])
-data_processor = DataProcessor()
+router = APIRouter(prefix="/api/races", tags=["Races"])
 
-@router.on_event("startup")
-async def startup():
-    """Load data on startup"""
-    data_processor.load_data()
+@router.get("/")
+def get_races(season: int = None, db: Session = Depends(get_db)):
+    """List all races, optionally filtered by season"""
+    query = db.query(Race)
+    if season:
+        query = query.filter(Race.season == season)
+    races = query.order_by(Race.season.desc(), Race.round.desc()).all()
+    
+    return [{
+        "race_id": r.race_id,
+        "season": r.season,
+        "round": r.round,
+        "race_name": r.race_name,
+        "date": r.date,
+        "circuit_name": r.circuit_name,
+        "country": r.country,
+        "circuit_type": r.circuit_type
+    } for r in races]
 
-@router.get("/", response_model=List[dict])
-async def get_all_races():
-    """Get all F1 races"""
-    try:
-        races = data_processor.get_all_races()
-        return races
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.get("/{race_id}", response_model=dict)
-async def get_race(race_id: int):
-    """Get a specific race by ID"""
-    try:
-        race = data_processor.get_race_by_id(race_id)
-        if race is None:
-            raise HTTPException(status_code=404, detail="Race not found")
-        return race
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.get("/upcoming")
-async def get_upcoming_races():
-    """Get upcoming races"""
-    try:
-        races = data_processor.get_all_races()
-        # Return next 3 races
-        return races[:3] if len(races) >= 3 else races
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.get("/{race_id}/sessions")
+def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
+    """All sessions for one race weekend, with results"""
+    race = db.query(Race).filter(Race.race_id == race_id).first()
+    if not race:
+        raise HTTPException(status_code=404, detail="Race not found")
+        
+    sessions = db.query(F1Session).filter(F1Session.race_id == race_id).all()
+    
+    response = {
+        "race_id": race.race_id,
+        "race_name": race.race_name,
+        "season": race.season,
+        "country": race.country,
+        "sessions": {}
+    }
+    
+    for s in sessions:
+        results_data = []
+        # Get results with driver and team
+        results = db.query(Result, Driver, Team)\
+                    .join(Driver)\
+                    .join(Team)\
+                    .filter(Result.session_id == s.session_id)\
+                    .order_by(Result.position.asc())\
+                    .all()
+                    
+        for r, d, t in results:
+            results_data.append({
+                "driver_id": d.driver_id,
+                "driver_name": f"{d.given_name} {d.family_name}",
+                "team_name": t.name,
+                "position": r.position,
+                "points": r.points,
+                "grid": r.grid,
+                "status": r.status
+            })
+            
+        response["sessions"][s.session_name] = results_data
+        
+    return response
