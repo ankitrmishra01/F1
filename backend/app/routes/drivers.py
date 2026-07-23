@@ -9,47 +9,106 @@ router = APIRouter(prefix="/api/drivers", tags=["Drivers"])
 
 JOLPICA_BASE = "https://api.jolpi.ca/ergast/f1"
 
-# Headshots & Bio Metadata for Top F1 Drivers
 DRIVER_META = {
     "hamilton": {
         "number": "44",
-        "bio": "Sir Lewis Carl Davidson Hamilton MBE is a British racing driver competing in Formula One. A 7-time World Champion, Hamilton holds the all-time records for most race wins (103), pole positions (104), and podium finishes (201).",
+        "bio": "Sir Lewis Hamilton MBE is a British driver for Scuderia Ferrari. A 7-time World Champion, Hamilton holds the all-time records for most wins (103), poles (104), and podiums (201).",
         "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LEWHAM01_Lewis_Hamilton/lewham01.png"
     },
     "verstappen": {
         "number": "1",
-        "bio": "Max Emilian Verstappen is a Dutch racing driver competing in Formula One for Red Bull Racing. A 4-time World Champion, Verstappen became the youngest driver to start a Formula One race at 17 years old and won the 2021, 2022, 2023, and 2024 World Championships.",
+        "bio": "Max Verstappen is a Dutch driver for Red Bull Racing. A 4-time World Champion (2021-2024), Verstappen holds the record for most wins in a single season (19).",
         "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png"
     },
     "norris": {
         "number": "4",
-        "bio": "Lando Norris is a British-Belgian racing driver competing in Formula One for McLaren. A Formula 2 runner-up in 2018, Norris made his F1 debut in 2019 and scored his maiden Grand Prix victory at Miami in 2024.",
+        "bio": "Lando Norris is a British-Belgian driver for McLaren. Maiden winner at Miami 2024, Norris led McLaren to the 2024 Constructors' World Championship.",
         "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANNOR01_Lando_Norris/lannor01.png"
     },
     "leclerc": {
         "number": "16",
-        "bio": "Charles Marc Hervé Perceval Leclerc is a Monegasque racing driver competing in Formula One for Scuderia Ferrari. A 2017 Formula 2 Champion, Leclerc joined Ferrari in 2019 and became the youngest pole-sitter in Ferrari history.",
+        "bio": "Charles Leclerc is a Monegasque driver for Scuderia Ferrari. A 2017 F2 Champion, Leclerc won Monaco 2024 & Monza 2024 for Ferrari.",
         "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CHALEC01_Charles_Leclerc/chalec01.png"
     },
     "piastri": {
         "number": "81",
-        "bio": "Oscar Jack Piastri is an Australian racing driver competing in Formula One for McLaren. Piastri won the 2019 Formula Renault Eurocup, 2020 Formula 3 Championship, and 2021 Formula 2 Championship in consecutive rookie seasons.",
+        "bio": "Oscar Piastri is an Australian driver for McLaren. F3 & F2 Champion in rookie seasons, Piastri won Hungary 2024 & Azerbaijan 2024.",
         "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/O/OSCPIA01_Oscar_Piastri/oscpia01.png"
     },
     "russell": {
         "number": "63",
-        "bio": "George William Russell is a British racing driver competing in Formula One for Mercedes. The 2018 FIA Formula 2 Champion, Russell joined Mercedes full-time in 2022 and scored his maiden Grand Prix win in Brazil 2022.",
+        "bio": "George Russell is a British driver for Mercedes-AMG. F2 Champion in 2018, Russell won Brazil 2022 & Austria 2024 for Mercedes.",
         "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GEORUS01_George_Russell/georus01.png"
     },
     "sainz": {
         "number": "55",
-        "bio": "Carlos Sainz Vázquez de Castro is a Spanish racing driver competing in Formula One for Williams Racing. Winner of the 2014 Formula Renault 3.5 Series, Sainz scored maiden Grand Prix victories at Silverstone 2022, Singapore 2023, and Australia 2024.",
+        "bio": "Carlos Sainz is a Spanish driver for Williams Racing. Sainz won Silverstone 2022, Singapore 2023, Australia 2024, and Mexico 2024.",
         "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CARSAI01_Carlos_Sainz/carsai01.png"
     },
     "alonso": {
         "number": "14",
-        "bio": "Fernando Alonso Díaz is a Spanish racing driver competing for Aston Martin. A 2-time World Champion (2005, 2006) and 24 Hours of Le Mans winner, Alonso is the most experienced driver in F1 history with over 390 Grand Prix starts.",
+        "bio": "Fernando Alonso is a 2-time World Champion (2005, 2006) driving for Aston Martin. Alonso holds the record for most F1 race starts in history.",
         "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FERALO01_Fernando_Alonso/feralo01.png"
+    },
+    "antonelli": {
+        "number": "12",
+        "bio": "Andrea Kimi Antonelli is an Italian prodigy driving for Mercedes-AMG. FRECA Champion in 2023, Antonelli stepped up directly to Formula 1.",
+        "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ANDANT01_Andrea_Kimi_Antonelli/andant01.png"
+    },
+    "bearman": {
+        "number": "87",
+        "bio": "Oliver Bearman is a British driver for Haas F1 Team. Bearman scored points on his Ferrari F1 debut in Saudi Arabia 2024.",
+        "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/O/OLIBEA01_Oliver_Bearman/olibea01.png"
+    },
+    "hadjar": {
+        "number": "6",
+        "bio": "Isack Hadjar is a French-Algerian driver in the Red Bull driver programme. F2 Title contender, Hadjar earned his F1 race seat.",
+        "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/I/ISAHAD01_Isack_Hadjar/isahad01.png"
+    },
+    "bortoleto": {
+        "number": "5",
+        "bio": "Gabriel Bortoleto is a Brazilian driver for Sauber/Audi F1 Team. 2023 FIA Formula 3 Champion & 2024 FIA Formula 2 Champion.",
+        "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GABBOR01_Gabriel_Bortoleto/gabbor01.png"
+    },
+    "colapinto": {
+        "number": "43",
+        "bio": "Franco Colapinto is an Argentine driver. Colapinto made a historic F1 debut at Monza 2024, scoring points for Williams in Baku.",
+        "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FRACOL01_Franco_Colapinto/fracol01.png"
+    },
+    "doohan": {
+        "number": "7",
+        "bio": "Jack Doohan is an Australian driver for BWT Alpine F1 Team. F2 Runner-Up and son of 5-time 500cc Motorcycle World Champion Mick Doohan.",
+        "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/J/JACDOO01_Jack_Doohan/jacdoo01.png"
+    },
+    "gasly": {
+        "number": "10",
+        "bio": "Pierre Gasly is a French driver for BWT Alpine F1 Team. Winner of the 2020 Italian Grand Prix at Monza with AlphaTauri.",
+        "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/P/PIEGAS01_Pierre_Gasly/piegas01.png"
+    },
+    "ocon": {
+        "number": "31",
+        "bio": "Esteban Ocon is a French driver for Haas F1 Team. GP3 Champion in 2015, Ocon scored maiden F1 victory at Hungary 2021.",
+        "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/E/ESTOCO01_Esteban_Ocon/estoco01.png"
+    },
+    "albon": {
+        "number": "23",
+        "bio": "Alexander Albon is a Thai-British driver leading Williams Racing. Albon scored podiums with Red Bull in 2020.",
+        "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ALEALB01_Alexander_Albon/alealb01.png"
+    },
+    "stroll": {
+        "number": "18",
+        "bio": "Lance Stroll is a Canadian driver for Aston Martin Aramco. 2016 F3 Champion, Stroll scored maiden podium in Baku 2017 & pole at Turkey 2020.",
+        "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANSTR01_Lance_Stroll/lanstr01.png"
+    },
+    "tsunoda": {
+        "number": "22",
+        "bio": "Yuki Tsunoda is a Japanese driver for Visa Cash App RB. Tsunoda entered F1 in 2021 following strong performance in F3 & F2.",
+        "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/Y/YUKTSU01_Yuki_Tsunoda/yuktsu01.png"
+    },
+    "hulkenberg": {
+        "number": "27",
+        "bio": "Nico Hülkenberg is a German driver for Kick Sauber / Audi. 2009 GP2 Champion & 2015 24 Hours of Le Mans winner.",
+        "image": "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png"
     }
 }
 
@@ -66,7 +125,6 @@ def get_driver_standings(season: int = None, db: Session = Depends(get_db)):
         season = db.query(func.max(Race.season)).scalar()
     if not season: season = datetime.now().year
 
-    # Try local database
     driver_points = db.query(
         Driver.driver_id,
         Driver.given_name,
@@ -94,7 +152,6 @@ def get_driver_standings(season: int = None, db: Session = Depends(get_db)):
             "season": season
         } for d in driver_points]
 
-    # Fallback to Jolpica Ergast API for older seasons (e.g., 2015, 2010)
     try:
         url = f"{JOLPICA_BASE}/{season}/driverStandings.json"
         resp = requests.get(url, timeout=5)
@@ -130,7 +187,6 @@ def get_driver_profile(driver_id: str, db: Session = Depends(get_db)):
     nat = driver.nationality if driver else "International"
     dob = driver.date_of_birth if driver else "N/A"
     
-    # Calculate age
     age = "N/A"
     if dob and len(dob) >= 4:
         try:
@@ -139,13 +195,17 @@ def get_driver_profile(driver_id: str, db: Session = Depends(get_db)):
         except Exception:
             pass
 
-    # Metadata enrichment
-    meta = DRIVER_META.get(driver_id.lower(), {})
+    # Look up metadata from DRIVER_META or family name key
+    meta_key = driver_id.lower()
+    if driver and driver.family_name:
+        if driver.family_name.lower() in DRIVER_META:
+            meta_key = driver.family_name.lower()
+            
+    meta = DRIVER_META.get(meta_key, {})
     number = meta.get("number", "10")
     bio = meta.get("bio", f"{name} is a Formula One racing driver competing at the highest level of motorsport.")
-    image = meta.get("image", f"https://api.dicebear.com/7.x/bottts/svg?seed={driver_id}")
+    image = meta.get("image", None)
 
-    # Query results
     race_results = []
     if driver:
         race_results = db.query(Result, F1Session, Race)\

@@ -3,6 +3,7 @@ import { newsAPI, predictionAPI } from "../api/client";
 import "./Home.css";
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState("all"); // 'all', 'predictions', 'news'
   const [articles, setArticles] = useState([]);
   const [favourites, setFavourites] = useState([]);
   const [championship, setChampionship] = useState(null);
@@ -11,9 +12,7 @@ export default function Home() {
   const [newsError, setNewsError] = useState(null);
   const [predError, setPredError] = useState(null);
 
-  // Selected article for In-App Expanding Reader
   const [selectedArticle, setSelectedArticle] = useState(null);
-  // Show feature insights toggle
   const [showInsights, setShowInsights] = useState(false);
 
   useEffect(() => {
@@ -64,174 +63,202 @@ export default function Home() {
   };
 
   return (
-    <div className="home-grid">
-      {/* LEFT COLUMN: News Feed */}
-      <section className="news-section">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 className="section-title">Latest F1 News & Upgrades</h2>
-          <span className="live-chip">🔴 REAL-TIME RSS</span>
+    <div className="home-wrapper">
+      {/* Top Filter Chips Bar */}
+      <div className="home-top-bar">
+        <div className="tab-chips">
+          <button
+            className={`chip-btn ${activeTab === "all" ? "active" : ""}`}
+            onClick={() => setActiveTab("all")}
+          >
+            ⚡ Dashboard Overview
+          </button>
+          <button
+            className={`chip-btn ${activeTab === "predictions" ? "active" : ""}`}
+            onClick={() => setActiveTab("predictions")}
+          >
+            🎯 ML Race & Championship Predictors
+          </button>
+          <button
+            className={`chip-btn ${activeTab === "news" ? "active" : ""}`}
+            onClick={() => setActiveTab("news")}
+          >
+            📰 Live News & Upgrades Feed
+          </button>
         </div>
 
-        {newsLoading ? (
-          <div className="loading-state">Loading live news feed...</div>
-        ) : newsError ? (
-          <div className="error-state">{newsError}</div>
-        ) : articles.length === 0 ? (
-          <div className="empty-state">No articles available.</div>
-        ) : (
-          <div className="news-grid">
-            {articles.map((article, idx) => (
-              <div
-                key={idx}
-                onClick={() => setSelectedArticle(article)}
-                className="news-card"
-              >
-                {article.image && (
-                  <img
-                    src={article.image}
-                    alt={article.title}
-                    className="news-card-image"
-                  />
-                )}
-                <div className="news-card-content">
-                  <span className="news-card-date">
-                    {formatDate(article.published) || "Latest News"}
-                  </span>
-                  <h3 className="news-card-title">{article.title}</h3>
-                  {article.description && (
-                    <p className="news-card-desc">{article.description}</p>
-                  )}
-                  <div className="read-more-btn">
-                    <span>Read Article</span>
-                    <span>→</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+        <span className="live-chip">🔴 REAL-TIME F1 TELEMETRY</span>
+      </div>
 
-      {/* RIGHT SIDEBAR: ML Race & Championship Predictors */}
-      <aside className="prediction-sidebar">
-        {/* Race Winner Predictor */}
-        <div className="prediction-card">
-          <div className="prediction-card-header">
-            <span className="pred-badge">ML WINNER PREDICTOR</span>
-            <h3 className="prediction-card-title">Race Winner Probability</h3>
-          </div>
+      <div className="home-grid">
+        {/* NEWS COLUMN */}
+        {(activeTab === "all" || activeTab === "news") && (
+          <section className="news-section">
+            <h2 className="section-title">Latest F1 News & Upgrades</h2>
 
-          {predLoading ? (
-            <div className="loading-state">Analyzing 5-race rolling form & telemetry...</div>
-          ) : predError ? (
-            <div className="error-state">{predError}</div>
-          ) : favourites.length === 0 ? (
-            <div className="empty-state">No predictions available.</div>
-          ) : (
-            <>
-              <div className="winner-block">
-                <span className="winner-label">Predicted Winner</span>
-                <span className="winner-name">{favourites[0].driver}</span>
-                <div className="confidence-bar">
+            {newsLoading ? (
+              <div className="loading-state">Loading live news feed...</div>
+            ) : newsError ? (
+              <div className="error-state">{newsError}</div>
+            ) : articles.length === 0 ? (
+              <div className="empty-state">No articles available.</div>
+            ) : (
+              <div className="news-grid">
+                {articles.map((article, idx) => (
                   <div
-                    className="confidence-fill"
-                    style={{
-                      width: `${(favourites[0].confidence * 100).toFixed(1)}%`,
-                    }}
-                  />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
-                  <span className="confidence-label">
-                    {(favourites[0].confidence * 100).toFixed(1)}% Win Probability
-                  </span>
-                  <button 
-                    className="why-btn"
-                    onClick={() => setShowInsights(!showInsights)}
+                    key={idx}
+                    onClick={() => setSelectedArticle(article)}
+                    className="news-card"
                   >
-                    {showInsights ? "Hide Telemetry" : "Why this winner?"}
-                  </button>
-                </div>
-
-                {/* Telemetry Feature Insights */}
-                {showInsights && favourites[0].insights && (
-                  <div className="insights-drawer">
-                    <div className="insight-row">
-                      <span className="insight-name">🏎️ 5-Race Finish Form</span>
-                      <span className="insight-val">{favourites[0].insights.recent_form}</span>
-                    </div>
-                    <div className="insight-row">
-                      <span className="insight-name">⚡ Qualifying Pace Rating</span>
-                      <span className="insight-val">{favourites[0].insights.quali_pace}</span>
-                    </div>
-                    <div className="insight-row">
-                      <span className="insight-name">📈 Constructor Trajectory</span>
-                      <span className="insight-val">{favourites[0].insights.team_momentum}</span>
-                    </div>
-                    <div className="insight-row">
-                      <span className="insight-name">🛣️ Circuit Fit Score</span>
-                      <span className="insight-val">{favourites[0].insights.circuit_suitability}</span>
+                    {article.image && (
+                      <img
+                        src={article.image}
+                        alt={article.title}
+                        className="news-card-image"
+                      />
+                    )}
+                    <div className="news-card-content">
+                      <span className="news-card-date">
+                        {formatDate(article.published) || "Latest News"}
+                      </span>
+                      <h3 className="news-card-title">{article.title}</h3>
+                      {article.description && (
+                        <p className="news-card-desc">{article.description}</p>
+                      )}
+                      <div className="read-more-btn">
+                        <span>Read Article</span>
+                        <span>→</span>
+                      </div>
                     </div>
                   </div>
-                )}
+                ))}
               </div>
-
-              {favourites.length > 1 && (
-                <div className="contenders-block">
-                  <h4 className="contenders-title">Top Contenders</h4>
-                  <ul className="contenders-list">
-                    {favourites.slice(1).map((fav, index) => (
-                      <li key={index} className="contender-item">
-                        <span className="contender-name">{fav.driver}</span>
-                        <span className="contender-pct">
-                          {(fav.confidence * 100).toFixed(1)}%
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* World Championship Predictor */}
-        {championship && (
-          <div className="prediction-card" style={{ marginTop: '24px', borderTopColor: 'var(--accent-indigo)' }}>
-            <div className="prediction-card-header">
-              <span className="pred-badge" style={{ background: 'linear-gradient(135deg, #a855f7, #6366f1)', color: '#fff' }}>
-                SEASON PREDICTOR
-              </span>
-              <h3 className="prediction-card-title">World Champions Projections</h3>
-            </div>
-
-            <div style={{ marginBottom: '16px' }}>
-              <span className="winner-label">🏆 Drivers' Champion Prediction</span>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
-                <span style={{ fontSize: '1.2rem', fontWeight: 800 }}>{championship.drivers_championship[0].driver}</span>
-                <span style={{ color: 'var(--accent-cyan)', fontWeight: 700, fontSize: '0.9rem' }}>
-                  {(championship.drivers_championship[0].prob * 100).toFixed(0)}% Proj. Win
-                </span>
-              </div>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                {championship.drivers_championship[0].team} &middot; Proj. Points: {championship.drivers_championship[0].projected_points} pts
-              </span>
-            </div>
-
-            <div>
-              <span className="winner-label">🏎️ Constructors' Champion Prediction</span>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
-                <span style={{ fontSize: '1.2rem', fontWeight: 800 }}>{championship.constructors_championship[0].team}</span>
-                <span style={{ color: 'var(--accent-emerald)', fontWeight: 700, fontSize: '0.9rem' }}>
-                  {(championship.constructors_championship[0].prob * 100).toFixed(0)}% Proj. Win
-                </span>
-              </div>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Proj. Points: {championship.constructors_championship[0].projected_points} pts
-              </span>
-            </div>
-          </div>
+            )}
+          </section>
         )}
-      </aside>
+
+        {/* PREDICTIONS COLUMN */}
+        {(activeTab === "all" || activeTab === "predictions") && (
+          <aside className={`prediction-sidebar ${activeTab === "predictions" ? "full-width" : ""}`}>
+            {/* Race Winner Predictor */}
+            <div className="prediction-card">
+              <div className="prediction-card-header">
+                <span className="pred-badge">ML WINNER PREDICTOR</span>
+                <h3 className="prediction-card-title">Race Winner Probability</h3>
+              </div>
+
+              {predLoading ? (
+                <div className="loading-state">Analyzing 5-race rolling form & telemetry...</div>
+              ) : predError ? (
+                <div className="error-state">{predError}</div>
+              ) : favourites.length === 0 ? (
+                <div className="empty-state">No predictions available.</div>
+              ) : (
+                <>
+                  <div className="winner-block">
+                    <span className="winner-label">Predicted Winner</span>
+                    <span className="winner-name">{favourites[0].driver}</span>
+                    <div className="confidence-bar">
+                      <div
+                        className="confidence-fill"
+                        style={{
+                          width: `${(favourites[0].confidence * 100).toFixed(1)}%`,
+                        }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                      <span className="confidence-label">
+                        {(favourites[0].confidence * 100).toFixed(1)}% Win Probability
+                      </span>
+                      <button 
+                        className="why-btn"
+                        onClick={() => setShowInsights(!showInsights)}
+                      >
+                        {showInsights ? "Hide Telemetry" : "Why this winner?"}
+                      </button>
+                    </div>
+
+                    {showInsights && favourites[0].insights && (
+                      <div className="insights-drawer">
+                        <div className="insight-row">
+                          <span className="insight-name">🏎️ 5-Race Finish Form</span>
+                          <span className="insight-val">{favourites[0].insights.recent_form}</span>
+                        </div>
+                        <div className="insight-row">
+                          <span className="insight-name">⚡ Qualifying Pace</span>
+                          <span className="insight-val">{favourites[0].insights.quali_pace}</span>
+                        </div>
+                        <div className="insight-row">
+                          <span className="insight-name">📈 Constructor Momentum</span>
+                          <span className="insight-val">{favourites[0].insights.team_momentum}</span>
+                        </div>
+                        <div className="insight-row">
+                          <span className="insight-name">🛣️ Circuit Fit Score</span>
+                          <span className="insight-val">{favourites[0].insights.circuit_suitability}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {favourites.length > 1 && (
+                    <div className="contenders-block">
+                      <h4 className="contenders-title">Top Contenders</h4>
+                      <ul className="contenders-list">
+                        {favourites.slice(1).map((fav, index) => (
+                          <li key={index} className="contender-item">
+                            <span className="contender-name">{fav.driver}</span>
+                            <span className="contender-pct">
+                              {(fav.confidence * 100).toFixed(1)}%
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* World Championship Predictor */}
+            {championship && (
+              <div className="prediction-card" style={{ marginTop: '24px', borderTopColor: 'var(--accent-indigo)' }}>
+                <div className="prediction-card-header">
+                  <span className="pred-badge" style={{ background: 'linear-gradient(135deg, #a855f7, #6366f1)', color: '#fff' }}>
+                    SEASON PREDICTOR
+                  </span>
+                  <h3 className="prediction-card-title">World Champions Projections</h3>
+                </div>
+
+                <div style={{ marginBottom: '16px' }}>
+                  <span className="winner-label">🏆 Drivers' Champion Prediction</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 800 }}>{championship.drivers_championship[0].driver}</span>
+                    <span style={{ color: 'var(--accent-cyan)', fontWeight: 700, fontSize: '0.9rem' }}>
+                      {(championship.drivers_championship[0].prob * 100).toFixed(0)}% Proj. Win
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    {championship.drivers_championship[0].team} &middot; Proj. Points: {championship.drivers_championship[0].projected_points} pts
+                  </span>
+                </div>
+
+                <div>
+                  <span className="winner-label">🏎️ Constructors' Champion Prediction</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 800 }}>{championship.constructors_championship[0].team}</span>
+                    <span style={{ color: 'var(--accent-emerald)', fontWeight: 700, fontSize: '0.9rem' }}>
+                      {(championship.constructors_championship[0].prob * 100).toFixed(0)}% Proj. Win
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    Proj. Points: {championship.constructors_championship[0].projected_points} pts
+                  </span>
+                </div>
+              </div>
+            )}
+          </aside>
+        )}
+      </div>
 
       {/* IN-APP EXPANDING NEWS READER MODAL */}
       {selectedArticle && (
