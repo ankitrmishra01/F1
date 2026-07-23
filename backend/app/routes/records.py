@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from app.database import get_db, Champion, Driver, Team, Result, F1Session
+from app.database import get_db, Champion, Driver, Team, Result, Session as F1Session
 
 router = APIRouter(prefix="/api/records", tags=["Records"])
 
