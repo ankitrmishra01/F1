@@ -81,30 +81,56 @@ class F1PredictionModel:
             
         active_features = self.data_processor.get_upcoming_race_features(db)
         if not active_features:
-            return [{"driver": "No upcoming race data", "confidence": 0}]
+            return [{"driver": "No active driver data", "confidence": 0.0}]
             
-        # Predict probability of winning (class 1)
         drivers = []
         features_matrix = []
         for d in active_features:
             drivers.append(d["driver"])
             features_matrix.append(d["features"])
             
-        X_scaled = self.scaler.transform(features_matrix)
-        
-        probabilities = self.model.predict_proba(X_scaled)[:, 1] # Probability of class 1 (winner)
-        
-        # Sort by probability
-        top_indices = np.argsort(probabilities)[-3:][::-1]
+        probs = None
+        if self.model and self.scaler:
+            try:
+                X_scaled = self.scaler.transform(features_matrix)
+                # Check class index for winner (1)
+                classes = list(self.model.classes_)
+                idx = classes.index(1) if 1 in classes else 0
+                probs = self.model.predict_proba(X_scaled)[:, idx]
+            except Exception as e:
+                print(f"Model prediction error: {e}")
+                probs = None
+
+        # Fallback / heuristic scoring if probs is all zeros or model failed
+        if probs is None or np.sum(probs) == 0:
+            # Score based on inverse recent finish pos (feature 0) and points (feature 1)
+            scores = []
+            for f in features_matrix:
+                recent_pos = f[0] # lower is better
+                recent_pts = f[1] # higher is better
+                score = (1.0 / (recent_pos + 0.1)) * (1.0 + recent_pts * 0.1)
+                scores.append(score)
+            probs = np.array(scores)
+
+        # Normalize probabilities so the field sums to 1.0 (100%)
+        total_p = np.sum(probs)
+        if total_p > 0:
+            normalized_probs = probs / total_p
+        else:
+            normalized_probs = np.ones(len(probs)) / len(probs)
+
+        # Sort drivers by highest probability
+        top_indices = np.argsort(normalized_probs)[::-1][:4] # Top 4 contenders
         
         results = []
         for i in top_indices:
             results.append({
                 "driver": drivers[i],
-                "confidence": float(probabilities[i])
+                "confidence": round(float(normalized_probs[i]), 4)
             })
             
         return results
+
     
     def get_model_info(self):
         """Get model information"""

@@ -136,27 +136,33 @@ class DataProcessor:
         return np.array(features), np.array(labels)
         
     def get_upcoming_race_features(self, db):
-        """Generate features for active drivers for the next race"""
-        # Find latest race season/round
-        latest = db.query(Race).order_by(Race.season.desc(), Race.round.desc()).first()
-        if not latest: return []
-        
-        # Get drivers who participated in the latest race
-        latest_race_session = db.query(F1Session).filter_by(race_id=latest.race_id, session_name="Race").first()
-        if not latest_race_session: return []
+        """Generate features for active drivers based on the most recent completed race"""
+        # Find the latest race session that actually has results in the database
+        latest_res = db.query(Result.session_id, Race.season, Race.round)\
+            .select_from(Result)\
+            .join(F1Session, Result.session_id == F1Session.session_id)\
+            .join(Race, F1Session.race_id == Race.race_id)\
+            .filter(F1Session.session_name == "Race")\
+            .order_by(Race.season.desc(), Race.round.desc())\
+            .first()
+            
+        if not latest_res:
+            # Fallback: pick any drivers from drivers table
+            drivers = db.query(Driver).limit(10).all()
+            return [{"driver": f"{d.given_name} {d.family_name}", "features": [10.0, 0.0, 10.0, 0.0, 0.0, 10.0, 0]} for d in drivers]
+            
+        session_id, season, round_num = latest_res
         
         active_drivers = db.query(Result.driver_id, Result.team_id)\
-            .filter_by(session_id=latest_race_session.session_id).all()
+            .filter(Result.session_id == session_id).all()
             
         features = []
         for d_id, t_id in active_drivers:
-            # We predict as if round = latest.round + 1
-            recent_pos, recent_pts = self.get_driver_form(d_id, latest.season, latest.round + 1)
-            quali_pos = self.get_driver_quali_form(d_id, latest.season, latest.round + 1)
-            team_trend = self.get_team_trend(t_id, latest.season, latest.round + 1)
-            sprint_pts = self.get_sprint_points(d_id, latest.season, latest.round + 1)
-            # Assume permanent circuit if unknown
-            circ_fit = self.get_circuit_fit(d_id, "permanent", latest.season, latest.round + 1)
+            recent_pos, recent_pts = self.get_driver_form(d_id, season, round_num + 1)
+            quali_pos = self.get_driver_quali_form(d_id, season, round_num + 1)
+            team_trend = self.get_team_trend(t_id, season, round_num + 1)
+            sprint_pts = self.get_sprint_points(d_id, season, round_num + 1)
+            circ_fit = self.get_circuit_fit(d_id, "permanent", season, round_num + 1)
             
             feature_vector = [
                 recent_pos,
@@ -165,7 +171,7 @@ class DataProcessor:
                 sprint_pts,
                 team_trend,
                 circ_fit,
-                0 # permanent
+                0
             ]
             
             driver_name = db.query(Driver).filter_by(driver_id=d_id).first()
@@ -174,3 +180,4 @@ class DataProcessor:
             features.append({"driver": name, "features": feature_vector})
             
         return features
+

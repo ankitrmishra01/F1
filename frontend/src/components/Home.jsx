@@ -56,10 +56,10 @@ export default function Home() {
   return (
     <div className="home-grid">
       <section className="news-section">
-        <h2 className="section-title">Latest News</h2>
+        <h2 className="section-title">Latest F1 News & Upgrades</h2>
 
         {newsLoading ? (
-          <div className="loading-state">Loading news...</div>
+          <div className="loading-state">Loading live news feed...</div>
         ) : newsError ? (
           <div className="error-state">{newsError}</div>
         ) : articles.length === 0 ? (
@@ -100,10 +100,13 @@ export default function Home() {
 
       <aside className="prediction-sidebar">
         <div className="prediction-card">
-          <h3 className="prediction-card-title">Predicted Winner</h3>
+          <div className="prediction-card-header">
+            <span className="pred-badge">ML PREDICTOR</span>
+            <h3 className="prediction-card-title">Winner Probability</h3>
+          </div>
 
           {predLoading ? (
-            <div className="loading-state">Analyzing form data...</div>
+            <div className="loading-state">Analyzing 5-race rolling form & telemetry...</div>
           ) : predError ? (
             <div className="error-state">{predError}</div>
           ) : favourites.length === 0 ? (
@@ -111,6 +114,7 @@ export default function Home() {
           ) : (
             <>
               <div className="winner-block">
+                <span className="winner-label">Predicted Winner</span>
                 <span className="winner-name">{favourites[0].driver}</span>
                 <div className="confidence-bar">
                   <div

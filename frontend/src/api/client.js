@@ -35,13 +35,14 @@ export const teamsAPI = {
   getAllTeams: () => api.get("/api/teams/"),
   getTeamProfile: (teamId) => api.get(`/api/teams/${teamId}`),
   getTeamRaces: (teamId, season = null) => api.get(`/api/teams/${teamId}/races${season ? '?season='+season : ''}`),
-  getStandings: () => api.get("/api/teams/standings/current"),
+  getStandings: (season = null) => api.get(`/api/teams/standings/current${season ? '?season='+season : ''}`),
 };
 
 export const driversAPI = {
   getAllDrivers: () => api.get("/api/drivers/"),
   getDriverProfile: (driverId) => api.get(`/api/drivers/${driverId}`),
   getDriverRaces: (driverId, season = null) => api.get(`/api/drivers/${driverId}/races${season ? '?season='+season : ''}`),
+  getStandings: (season = null) => api.get(`/api/drivers/standings/current${season ? '?season='+season : ''}`),
 };
 
 export const recordsAPI = {
@@ -55,6 +56,10 @@ export const seasonsAPI = {
 
 export const newsAPI = {
   getNews: () => api.get("/api/news/"),
+};
+
+export const carsAPI = {
+  getCars: () => api.get("/api/cars/"),
 };
 
 export const healthAPI = {

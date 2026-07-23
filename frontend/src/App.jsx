@@ -7,6 +7,7 @@ import DriverProfile from "./components/DriverProfile";
 import TeamProfile from "./components/TeamProfile";
 import RaceWeekend from "./components/RaceWeekend";
 import AllTimeRecords from "./components/AllTimeRecords";
+import CarSpecs from "./components/CarSpecs";
 import { healthAPI } from "./api/client";
 import "./App.css";
 
@@ -37,19 +38,21 @@ function App() {
     { path: "/standings", label: "Standings", match: (p) => p.includes("/standings") || p.includes("/driver") || p.includes("/team") },
     { path: "/calendar", label: "Schedule", match: (p) => p.includes("/calendar") || p.includes("/race") },
     { path: "/records", label: "Records", match: (p) => p === "/records" },
+    { path: "/cars", label: "Car Specs", match: (p) => p === "/cars" },
   ];
 
   return (
     <div className="app">
       <header className="topbar">
         <Link to="/" className="topbar-brand">
+          <span className="brand-badge">F1</span>
           <span className="logo-text">
             Grid<span className="logo-accent">Form</span>
           </span>
         </Link>
         <div className="topbar-status">
           <span className={`status-dot ${apiStatus}`}></span>
-          <span>{apiStatus === "online" ? "LIVE" : "OFFLINE"}</span>
+          <span>{apiStatus === "online" ? "LIVE ENGINE" : "OFFLINE"}</span>
         </div>
       </header>
 
@@ -81,11 +84,12 @@ function App() {
           <Route path="/team/:teamId" element={<TeamProfile />} />
           <Route path="/race/:raceId" element={<RaceWeekend />} />
           <Route path="/records" element={<AllTimeRecords />} />
+          <Route path="/cars" element={<CarSpecs />} />
         </Routes>
       </main>
 
       <footer className="footer">
-        <p>GridForm | Powered by scikit-learn, Jolpica & OpenF1</p>
+        <p>GridForm Analytics & ML Predictor | Powered by scikit-learn, Jolpica & OpenF1</p>
       </footer>
     </div>
   );

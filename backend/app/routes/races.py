@@ -6,22 +6,49 @@ router = APIRouter(prefix="/api/races", tags=["Races"])
 
 @router.get("/")
 def get_races(season: int = None, db: Session = Depends(get_db)):
-    """List all races, optionally filtered by season"""
+    """List all races, optionally filtered by season, with winner/podium data for completed races"""
     query = db.query(Race)
     if season:
         query = query.filter(Race.season == season)
     races = query.order_by(Race.season.desc(), Race.round.desc()).all()
     
-    return [{
-        "race_id": r.race_id,
-        "season": r.season,
-        "round": r.round,
-        "race_name": r.race_name,
-        "date": r.date,
-        "circuit_name": r.circuit_name,
-        "country": r.country,
-        "circuit_type": r.circuit_type
-    } for r in races]
+    result_list = []
+    for r in races:
+        # Check if Race session has completed results
+        race_session = db.query(F1Session).filter_by(race_id=r.race_id, session_name="Race").first()
+        winner_name = None
+        podium_drivers = []
+        is_completed = False
+        
+        if race_session:
+            podium_res = db.query(Result, Driver)\
+                .select_from(Result)\
+                .join(Driver, Result.driver_id == Driver.driver_id)\
+                .filter(Result.session_id == race_session.session_id, Result.position <= 3)\
+                .order_by(Result.position.asc())\
+                .all()
+                
+            if podium_res:
+                is_completed = True
+                podium_drivers = [f"{d.given_name} {d.family_name}" for res, d in podium_res]
+                if len(podium_drivers) > 0:
+                    winner_name = podium_drivers[0]
+                    
+        result_list.append({
+            "race_id": r.race_id,
+            "season": r.season,
+            "round": r.round,
+            "race_name": r.race_name,
+            "date": r.date,
+            "circuit_name": r.circuit_name,
+            "country": r.country,
+            "circuit_type": r.circuit_type,
+            "is_completed": is_completed,
+            "winner": winner_name,
+            "podium": podium_drivers
+        })
+        
+    return result_list
 
 @router.get("/{race_id}/sessions")
 def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
@@ -42,10 +69,10 @@ def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
     
     for s in sessions:
         results_data = []
-        # Get results with driver and team
         results = db.query(Result, Driver, Team)\
-                    .join(Driver)\
-                    .join(Team)\
+                    .select_from(Result)\
+                    .join(Driver, Result.driver_id == Driver.driver_id)\
+                    .join(Team, Result.team_id == Team.team_id)\
                     .filter(Result.session_id == s.session_id)\
                     .order_by(Result.position.asc())\
                     .all()
@@ -54,6 +81,7 @@ def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
             results_data.append({
                 "driver_id": d.driver_id,
                 "driver_name": f"{d.given_name} {d.family_name}",
+                "team_id": t.team_id,
                 "team_name": t.name,
                 "position": r.position,
                 "points": r.points,
