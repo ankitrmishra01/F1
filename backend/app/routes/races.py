@@ -35,7 +35,9 @@ REAL_2024_WINNERS = {
 
 @router.get("/")
 def get_races(season: int = None, db: Session = Depends(get_db)):
-    """List all races, explicitly casting season parameter to integer"""
+    """List all races, strictly evaluating completion status on race.date < today"""
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    
     query = db.query(Race)
     if season is not None:
         try:
@@ -52,13 +54,15 @@ def get_races(season: int = None, db: Session = Depends(get_db)):
         is_completed = False
         session_status = None
         
-        # Real Database Check for 2024 Completed Season
-        if r.season == 2024 and r.round in REAL_2024_WINNERS:
+        # Date-Based Completion Check
+        if r.date and r.date < today_str:
             is_completed = True
+            
+        # 1. Check 2024 Real Winners Map
+        if r.season == 2024 and r.round in REAL_2024_WINNERS:
             winner_name = REAL_2024_WINNERS[r.round]["winner"]
             podium_drivers = REAL_2024_WINNERS[r.round]["podium"]
         elif r.season == 2026 and r.round == 11:
-            # Active Hungarian GP Live Telemetry Weekend Status
             session_status = {
                 "fp1": "Completed (Lando Norris P1 - 1:17.944)",
                 "fp2": "Completed (Lando Norris P1 - 1:17.788)",
@@ -66,22 +70,21 @@ def get_races(season: int = None, db: Session = Depends(get_db)):
                 "quali": "Saturday 19:30 IST",
                 "race": "Sunday 18:30 IST"
             }
-        else:
-            # Check DB Session Table
-            race_session = db.query(F1Session).filter_by(race_id=r.race_id, session_name="Race").first()
-            if race_session:
-                podium_res = db.query(Result, Driver)\
-                    .select_from(Result)\
-                    .join(Driver, Result.driver_id == Driver.driver_id)\
-                    .filter(Result.session_id == race_session.session_id, Result.position <= 3)\
-                    .order_by(Result.position.asc())\
-                    .all()
-                    
-                if podium_res:
-                    is_completed = True
-                    podium_drivers = [f"{d.given_name} {d.family_name}" for res, d in podium_res]
-                    if len(podium_drivers) > 0:
-                        winner_name = podium_drivers[0]
+        
+        # 2. Check Database Session Results
+        race_session = db.query(F1Session).filter_by(race_id=r.race_id, session_name="Race").first()
+        if race_session:
+            podium_res = db.query(Result, Driver)\
+                .select_from(Result)\
+                .join(Driver, Result.driver_id == Driver.driver_id)\
+                .filter(Result.session_id == race_session.session_id, Result.position <= 3)\
+                .order_by(Result.position.asc())\
+                .all()
+                
+            if podium_res:
+                podium_drivers = [f"{d.given_name} {d.family_name}" for res, d in podium_res]
+                if len(podium_drivers) > 0 and not winner_name:
+                    winner_name = podium_drivers[0]
 
         result_list.append({
             "race_id": r.race_id,
@@ -93,7 +96,7 @@ def get_races(season: int = None, db: Session = Depends(get_db)):
             "country": r.country,
             "circuit_type": r.circuit_type,
             "is_completed": is_completed,
-            "winner": winner_name,
+            "winner": winner_name or ("Completed" if is_completed else None),
             "podium": podium_drivers,
             "session_status": session_status
         })

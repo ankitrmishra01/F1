@@ -269,27 +269,15 @@ def predict_specific_race(request: RacePredictRequest, db: Session = Depends(get
         "predictions": grid
     }
 
+from app.ml.simulations import run_monte_carlo_championship_simulation
+
 @router.get("/championship")
 def get_championship_predictions(db: Session = Depends(get_db)):
-    """Full World Championship Title Chances - Harmonized with Race Wins"""
-    driver_predictions = [
-        {"rank": 1, "driver": "Max Verstappen", "team": "Red Bull Racing", "prob": 0.420},
-        {"rank": 2, "driver": "Lando Norris", "team": "McLaren", "prob": 0.310},
-        {"rank": 3, "driver": "Charles Leclerc", "team": "Scuderia Ferrari", "prob": 0.140},
-        {"rank": 4, "driver": "George Russell", "team": "Mercedes-AMG Petronas", "prob": 0.080},
-        {"rank": 5, "driver": "Lewis Hamilton", "team": "Scuderia Ferrari", "prob": 0.030},
-        {"rank": 6, "driver": "Oscar Piastri", "team": "McLaren", "prob": 0.020}
-    ]
-
-    constructor_predictions = [
-        {"rank": 1, "team": "McLaren F1 Team", "prob": 0.450},
-        {"rank": 2, "team": "Red Bull Racing", "prob": 0.320},
-        {"rank": 3, "team": "Scuderia Ferrari", "prob": 0.150},
-        {"rank": 4, "team": "Mercedes-AMG Petronas F1 Team", "prob": 0.080}
-    ]
-
+    """Full World Championship Title Chances computed via 10,000-run Monte Carlo Simulation"""
+    sim_results = run_monte_carlo_championship_simulation(10000, remaining_races=11)
+    
     return {
-        "model_accuracy": "Multi-Vector Championship Predictor Engine",
-        "drivers_championship": driver_predictions,
-        "constructors_championship": constructor_predictions
+        "model_accuracy": "10,000-Iteration Monte Carlo Title Simulation Engine",
+        "drivers_championship": sim_results["drivers_championship"],
+        "constructors_championship": sim_results["constructors_championship"]
     }
