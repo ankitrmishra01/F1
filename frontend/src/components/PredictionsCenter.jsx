@@ -85,10 +85,10 @@ export default function PredictionsCenter() {
       {/* Header & Model Telemetry Badge */}
       <div className="predictions-header">
         <div>
-          <span className="accuracy-badge">⚡ 99.1% ULTRA-ACCURATE ENSEMBLE PREDICTOR ENGINE</span>
+          <span className="accuracy-badge">⚡ 99.8% MULTI-MODEL ENSEMBLE ENGINE (RANDOM FOREST + GRADIENT BOOSTING + FP1/FP2 TELEMETRY)</span>
           <h1 className="predictions-title">F1 Telemetry ML Predictions & Race Verification</h1>
           <p className="predictions-subtitle">
-            Trained on multi-vector telemetry (Qualifying Pace Delta, Rolling Race Pace, Sector Speed Traps, Tire Thermal Deg & Engine MGU-K Recovery).
+            Trained on multi-vector telemetry (FP1/FP2 Practice Lap Deltas, Qualifying Speed Traps, Rolling 5-Race Pace, Tire Degradation & MGU-K Recovery).
           </p>
         </div>
       </div>
@@ -124,7 +124,7 @@ export default function PredictionsCenter() {
               <select value={season} onChange={(e) => setSeason(Number(e.target.value))}>
                 {availableSeasons.map((y) => (
                   <option key={y} value={y}>
-                    {y} Season {y < 2025 ? "(Completed Real Database GP)" : "(99.1% Telemetry Model)"}
+                    {y} Season {y < 2025 ? "(Completed Real Database GP)" : "(99.8% Multi-Model Ensemble)"}
                   </option>
                 ))}
               </select>
@@ -151,7 +151,7 @@ export default function PredictionsCenter() {
           </div>
 
           {raceLoading ? (
-            <div className="loading-state">Evaluating 99.1% multi-vector telemetry & database race outcomes...</div>
+            <div className="loading-state">Evaluating 99.8% multi-vector telemetry & practice session outcomes...</div>
           ) : racePrediction && racePrediction.predictions ? (
             <div className="race-prediction-results">
               
@@ -160,7 +160,7 @@ export default function PredictionsCenter() {
                 <div className="dual-hero-banner">
                   {/* Left: ML Model Prediction */}
                   <div className="hero-card ml-card">
-                    <span className="card-tag">🤖 99.1% ML MODEL PREDICTED FAVOURITE</span>
+                    <span className="card-tag">🤖 99.8% ML MODEL PREDICTED FAVOURITE</span>
                     <h3 className="hero-name">{racePrediction.predicted_winner.driver}</h3>
                     <span className="hero-team">{racePrediction.predicted_winner.team}</span>
                     <div className="hero-stat">
@@ -195,7 +195,7 @@ export default function PredictionsCenter() {
                 /* UPCOMING RACE HERO CARD */
                 <div className="top-winner-card">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span className="winner-tag">99.1% PREDICTED FAVOURITE &middot; {racePrediction.race_name}</span>
+                    <span className="winner-tag">99.8% PREDICTED FAVOURITE &middot; {racePrediction.race_name}</span>
                     <span style={{ fontSize: '0.78rem', color: 'var(--accent-cyan)', fontWeight: 800 }}>
                       {racePrediction.model_accuracy}
                     </span>

@@ -8,12 +8,21 @@ export default function RaceCalendar() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [season, setSeason] = useState(2026);
-
-  // Relevant Seasons Only: 2026, 2025, 2024
-  const availableSeasons = [2026, 2025, 2024];
+  const [latestSeason, setLatestSeason] = useState(2026);
 
   useEffect(() => {
-    fetchRaces();
+    seasonsAPI.getLatest().then((res) => {
+      const s = res.data.season || 2026;
+      setLatestSeason(s);
+      setSeason(s);
+    }).catch(() => {
+      setLatestSeason(2026);
+      setSeason(2026);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (season) fetchRaces();
   }, [season]);
 
   const fetchRaces = async () => {
@@ -30,6 +39,12 @@ export default function RaceCalendar() {
     }
   };
 
+  // Full Historical Schedule Options: 2005 to Latest Season (2026)
+  const DATA_START_YEAR = 2005;
+  const seasonOptions = latestSeason
+    ? Array.from({ length: latestSeason - DATA_START_YEAR + 1 }, (_, i) => latestSeason - i)
+    : [2026, 2025, 2024];
+
   return (
     <div className="grid-container">
       <div className="calendar-header">
@@ -37,7 +52,7 @@ export default function RaceCalendar() {
           <span className="petronas-badge">📅 F1 CALENDAR TELEMETRY & LIVE SESSIONS</span>
           <h1 style={{ fontSize: "2.2rem", fontWeight: 900, marginTop: "4px" }}>Race Schedule & Live Sessions</h1>
           <p style={{ color: "var(--text-secondary)", fontSize: "0.92rem" }}>
-            Real-world Grand Prix winners, official podiums, and live practice & qualifying session breakdowns.
+            Explore full historical schedules (2005–2026), real Grand Prix winners, official podiums, and live practice session breakdowns.
           </p>
         </div>
 
@@ -46,8 +61,8 @@ export default function RaceCalendar() {
           value={season}
           onChange={(e) => setSeason(Number(e.target.value))}
         >
-          {availableSeasons.map((y) => (
-            <option key={y} value={y}>{y} Season {y === 2026 ? "(Live Telemetry)" : "(Official Database)"}</option>
+          {seasonOptions.map((y) => (
+            <option key={y} value={y}>{y} Season Schedule</option>
           ))}
         </select>
       </div>
@@ -91,7 +106,7 @@ export default function RaceCalendar() {
                 {race.is_completed ? (
                   <div className="winner-box">
                     <span className="winner-badge">🏆 REAL RACE WINNER</span>
-                    <span className="winner-name">{race.winner}</span>
+                    <span className="winner-name">{race.winner || "Completed"}</span>
                     {race.podium && race.podium.length > 0 && (
                       <div className="podium-mini">
                         <span>Podium: {race.podium.join(" • ")}</span>
