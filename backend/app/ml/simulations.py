@@ -1,5 +1,4 @@
 import numpy as np
-import random
 from typing import Dict, List
 
 # Official 2026 Current Championship Points & Rosters (through Belgian GP)
@@ -27,28 +26,29 @@ def run_monte_carlo_championship_simulation(n_iterations: int = 10000, remaining
     driver_wins = {d["driver"]: 0 for d in CURRENT_2026_DRIVER_POINTS}
     team_wins = {}
     
-    # Calculate base per-race win probabilities based on production model weights & form
-    # Antonelli (28%), Hamilton (24%), Russell (18%), Verstappen (14%), Norris (10%), Leclerc (6%)
-    prob_weights = np.array([0.28, 0.24, 0.18, 0.14, 0.10, 0.04, 0.02, 0.00, 0.00, 0.00])
+    # Smooth, non-zero probability distribution across all 10 drivers
+    prob_weights = np.array([0.32, 0.22, 0.16, 0.12, 0.08, 0.05, 0.03, 0.01, 0.006, 0.004])
     prob_weights = prob_weights / np.sum(prob_weights)
     
+    driver_names = [d["driver"] for d in CURRENT_2026_DRIVER_POINTS]
+    
     for _ in range(n_iterations):
-        # Copy current starting points
+        # Copy starting points
         sim_driver_pts = {d["driver"]: d["points"] for d in CURRENT_2026_DRIVER_POINTS}
         
         # Simulate each remaining race
-        for race_idx in range(remaining_races):
-            # Sample race finishing order using probability weights
+        for _ in range(remaining_races):
+            # Sample finishing order using probability weights
             finishing_order = np.random.choice(
-                [d["driver"] for d in CURRENT_2026_DRIVER_POINTS],
-                size=len(CURRENT_2026_DRIVER_POINTS),
+                driver_names,
+                size=len(driver_names),
                 replace=False,
                 p=prob_weights
             )
             
             # Award points for P1 to P10
-            for pos, driver_name in enumerate(finishing_order[:10]):
-                sim_driver_pts[driver_name] += F1_POINTS[pos]
+            for pos, d_name in enumerate(finishing_order[:10]):
+                sim_driver_pts[d_name] += F1_POINTS[pos]
                 
         # Determine World Drivers' Champion for this iteration
         champ_driver = max(sim_driver_pts, key=sim_driver_pts.get)
@@ -64,21 +64,28 @@ def run_monte_carlo_championship_simulation(n_iterations: int = 10000, remaining
         champ_team = max(sim_team_pts, key=sim_team_pts.get)
         team_wins[champ_team] = team_wins.get(champ_team, 0) + 1
 
-    # Convert iterations count to percentages
+    # Format Drivers' Championship Output
     drivers_championship = []
-    sorted_drivers = sorted(driver_wins.items(), key=lambda x: (x[1], [d['points'] for d in CURRENT_2026_DRIVER_POINTS if d['driver'] == x[0]][0]), reverse=True)
+    sorted_drivers = sorted(
+        driver_wins.items(),
+        key=lambda x: (x[1], [d['points'] for d in CURRENT_2026_DRIVER_POINTS if d['driver'] == x[0]][0]),
+        reverse=True
+    )
     
     for rank, (d_name, wins) in enumerate(sorted_drivers, 1):
         prob = round(wins / n_iterations, 4)
         t_name = [d["team"] for d in CURRENT_2026_DRIVER_POINTS if d["driver"] == d_name][0]
+        pts = [d['points'] for d in CURRENT_2026_DRIVER_POINTS if d['driver'] == d_name][0]
+        
         drivers_championship.append({
             "rank": rank,
             "driver": d_name,
             "team": t_name,
             "prob": prob,
-            "current_points": [d['points'] for d in CURRENT_2026_DRIVER_POINTS if d['driver'] == d_name][0]
+            "current_points": pts
         })
 
+    # Format Constructors' Championship Output
     constructors_championship = []
     sorted_teams = sorted(team_wins.items(), key=lambda x: x[1], reverse=True)
     for rank, (t_name, wins) in enumerate(sorted_teams, 1):
