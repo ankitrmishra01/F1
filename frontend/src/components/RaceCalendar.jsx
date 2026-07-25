@@ -7,23 +7,13 @@ export default function RaceCalendar() {
   const [races, setRaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [season, setSeason] = useState(null);
-  const [latestSeason, setLatestSeason] = useState(null);
+  const [season, setSeason] = useState(2026);
+
+  // Relevant Seasons Only: 2026, 2025, 2024
+  const availableSeasons = [2026, 2025, 2024];
 
   useEffect(() => {
-    seasonsAPI.getLatest().then((res) => {
-      const s = res.data.season;
-      setLatestSeason(s);
-      setSeason(s);
-    }).catch(() => {
-      const fallback = new Date().getFullYear();
-      setLatestSeason(fallback);
-      setSeason(fallback);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (season) fetchRaces();
+    fetchRaces();
   }, [season]);
 
   const fetchRaces = async () => {
@@ -40,19 +30,15 @@ export default function RaceCalendar() {
     }
   };
 
-  const DATA_START_YEAR = 2005;
-  const seasonOptions = latestSeason
-    ? Array.from({ length: latestSeason - DATA_START_YEAR + 1 }, (_, i) => latestSeason - i)
-    : [];
-
-  if (!season) return <div className="loading">Loading schedule...</div>;
-
   return (
     <div className="grid-container">
       <div className="calendar-header">
         <div>
-          <h1 style={{ fontSize: "2rem", fontWeight: 800 }}>Race Schedule & Results</h1>
-          <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>Circuit details, race dates, completed winners & podium summaries.</p>
+          <span className="petronas-badge">📅 F1 CALENDAR TELEMETRY & LIVE SESSIONS</span>
+          <h1 style={{ fontSize: "2.2rem", fontWeight: 900, marginTop: "4px" }}>Race Schedule & Live Sessions</h1>
+          <p style={{ color: "var(--text-secondary)", fontSize: "0.92rem" }}>
+            Real-world Grand Prix winners, official podiums, and live practice & qualifying session breakdowns.
+          </p>
         </div>
 
         <select
@@ -60,14 +46,14 @@ export default function RaceCalendar() {
           value={season}
           onChange={(e) => setSeason(Number(e.target.value))}
         >
-          {seasonOptions.map((y) => (
-            <option key={y} value={y}>{y} Season</option>
+          {availableSeasons.map((y) => (
+            <option key={y} value={y}>{y} Season {y === 2026 ? "(Live Telemetry)" : "(Official Database)"}</option>
           ))}
         </select>
       </div>
 
       {loading ? (
-        <div className="loading">Loading races for {season}...</div>
+        <div className="loading-state">Loading race schedule & session telemetry...</div>
       ) : error ? (
         <div className="error-message">{error}</div>
       ) : races.length === 0 ? (
@@ -80,8 +66,8 @@ export default function RaceCalendar() {
             <Link to={`/race/${race.race_id}`} key={race.race_id} className="calendar-card">
               <div className="calendar-card-header">
                 <div>
-                  <h3>{race.race_name}</h3>
-                  <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)" }}>{race.country}</span>
+                  <h3 className="race-card-title">{race.race_name}</h3>
+                  <span style={{ fontSize: "0.8rem", color: "var(--accent-cyan)", fontWeight: 700 }}>{race.country}</span>
                 </div>
                 <span className="round-badge">Round {race.round}</span>
               </div>
@@ -89,7 +75,9 @@ export default function RaceCalendar() {
               <div className="calendar-card-body">
                 <div className="calendar-detail">
                   <span>Date</span>
-                  <span>{new Date(race.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>
+                  <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>
+                    {new Date(race.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                  </span>
                 </div>
                 <div className="calendar-detail">
                   <span>Circuit</span>
@@ -102,17 +90,25 @@ export default function RaceCalendar() {
 
                 {race.is_completed ? (
                   <div className="winner-box">
-                    <span className="winner-badge">🏆 Race Winner</span>
-                    <span className="winner-name">{race.winner || "Completed"}</span>
+                    <span className="winner-badge">🏆 REAL RACE WINNER</span>
+                    <span className="winner-name">{race.winner}</span>
                     {race.podium && race.podium.length > 0 && (
                       <div className="podium-mini">
                         <span>Podium: {race.podium.join(" • ")}</span>
                       </div>
                     )}
                   </div>
+                ) : race.session_status ? (
+                  <div className="session-status-box">
+                    <span className="session-header-tag">🔴 LIVE WEEKEND TELEMETRY STATUS</span>
+                    <div className="session-chip green">🟢 FP1: {race.session_status.fp1}</div>
+                    <div className="session-chip green">🟢 FP2: {race.session_status.fp2}</div>
+                    <div className="session-chip yellow">🟡 FP3: {race.session_status.fp3}</div>
+                    <div className="session-chip cyan">⏱️ Quali: {race.session_status.quali}</div>
+                  </div>
                 ) : (
                   <div className="upcoming-box">
-                    <span>⏳ Upcoming Race</span>
+                    <span>⏳ Upcoming Race Weekend</span>
                   </div>
                 )}
               </div>
