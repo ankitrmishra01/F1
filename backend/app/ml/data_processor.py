@@ -8,11 +8,13 @@ class DataProcessor:
         self.db = SessionLocal()
 
     def __del__(self):
-        self.db.close()
+        try:
+            self.db.close()
+        except Exception:
+            pass
         
     def get_driver_form(self, driver_id, current_race_season, current_race_round, n=5):
-        """Average finish pos and points over last n races"""
-        # Find the last n races before this one
+        """Average finish pos and points over last n races (strictly before this race)"""
         past_races = self.db.query(Result.position, Result.points)\
             .join(F1Session).join(Race)\
             .filter(Result.driver_id == driver_id, F1Session.session_name == "Race")\
@@ -21,7 +23,7 @@ class DataProcessor:
             .limit(n).all()
             
         if not past_races:
-            return 10.0, 0.0 # Defaults
+            return 10.0, 0.0
             
         positions = [r[0] for r in past_races if r[0] is not None]
         points = [r[1] for r in past_races if r[1] is not None]
@@ -31,7 +33,7 @@ class DataProcessor:
         return avg_pos, avg_pts
         
     def get_driver_quali_form(self, driver_id, current_race_season, current_race_round, n=5):
-        """Average grid position over last n races"""
+        """Average grid position over last n races (strictly before this race)"""
         past_qualis = self.db.query(Result.position)\
             .join(F1Session).join(Race)\
             .filter(Result.driver_id == driver_id, F1Session.session_name == "Qualifying")\
@@ -44,9 +46,30 @@ class DataProcessor:
             
         positions = [r[0] for r in past_qualis if r[0] is not None]
         return sum(positions) / len(positions) if positions else 10.0
+
+    def get_this_race_grid(self, driver_id, race_id, fallback_grid=10.0):
+        """NEW FEATURE: Driver's actual starting grid position for THIS specific race (qualifying output)"""
+        res = self.db.query(Result.grid)\
+            .join(F1Session)\
+            .filter(Result.driver_id == driver_id, F1Session.race_id == race_id, F1Session.session_name == "Race")\
+            .first()
+            
+        if res and res[0] is not None and res[0] > 0:
+            return float(res[0])
+            
+        # Try qualifying session result
+        quali = self.db.query(Result.position)\
+            .join(F1Session)\
+            .filter(Result.driver_id == driver_id, F1Session.race_id == race_id, F1Session.session_name == "Qualifying")\
+            .first()
+            
+        if quali and quali[0] is not None and quali[0] > 0:
+            return float(quali[0])
+            
+        return float(fallback_grid)
         
     def get_team_trend(self, team_id, current_race_season, current_race_round):
-        """Improving or declining avg finishing pos: (last 1-3) - (last 4-6)"""
+        """Constructor team momentum over last 6 races (strictly before this race)"""
         past_races = self.db.query(Result.position)\
             .join(F1Session).join(Race)\
             .filter(Result.team_id == team_id, F1Session.session_name == "Race")\
@@ -59,20 +82,10 @@ class DataProcessor:
         
         recent = sum(positions[:3]) / 3
         older = sum(positions[3:]) / 3
-        # If recent < older, they are improving (lower pos is better)
-        return older - recent # Positive means improving
-        
-    def get_sprint_points(self, driver_id, current_race_season, current_race_round):
-        """Points in the sprint at this round (if any)"""
-        sprint = self.db.query(Result.points)\
-            .join(F1Session).join(Race)\
-            .filter(Result.driver_id == driver_id, F1Session.session_name == "Sprint")\
-            .filter(Race.season == current_race_season, Race.round == current_race_round)\
-            .first()
-        return sprint[0] if sprint and sprint[0] else 0.0
+        return older - recent
         
     def get_circuit_fit(self, driver_id, circuit_type, current_race_season, current_race_round):
-        """Average finish pos at this circuit type historically"""
+        """Driver's average finish pos at this circuit type historically (strictly before this race)"""
         past = self.db.query(Result.position)\
             .join(F1Session).join(Race)\
             .filter(Result.driver_id == driver_id, F1Session.session_name == "Race", Race.circuit_type == circuit_type)\
@@ -83,24 +96,25 @@ class DataProcessor:
         positions = [r[0] for r in past if r[0] is not None]
         return sum(positions) / len(positions) if positions else 10.0
 
-    def create_features(self):
-        """Create feature matrix from DB"""
-        print("Creating features... This may take a moment.")
-        # Only use recent seasons for training to save time/memory, e.g., 2020+
-        races = self.db.query(Race).filter(Race.season >= 2020).all()
+    def create_features(self, start_year=2005):
+        """Create feature matrix from DB with ZERO target race leakage"""
+        print(f"Creating pre-race features for races since {start_year}...")
+        races = self.db.query(Race).filter(Race.season >= start_year).order_by(Race.season.asc(), Race.round.asc()).all()
         
         features = []
         labels = []
+        race_ids = []
+        seasons = []
         
         for race in races:
-            # Find the winner
+            # Find the actual winner of this race
             winner = self.db.query(Result.driver_id)\
                 .join(F1Session)\
                 .filter(F1Session.race_id == race.race_id, F1Session.session_name == "Race", Result.position == 1)\
                 .first()
             if not winner: continue
             
-            # For each driver in this race, create features
+            # Fetch all driver entries for this race
             results = self.db.query(Result)\
                 .join(F1Session)\
                 .filter(F1Session.race_id == race.race_id, F1Session.session_name == "Race").all()
@@ -109,35 +123,34 @@ class DataProcessor:
                 d_id = res.driver_id
                 t_id = res.team_id
                 
+                # Pre-race features only
                 recent_pos, recent_pts = self.get_driver_form(d_id, race.season, race.round)
-                quali_pos = self.get_driver_quali_form(d_id, race.season, race.round)
+                avg_quali_pos = self.get_driver_quali_form(d_id, race.season, race.round)
+                this_race_grid = self.get_this_race_grid(d_id, race.race_id, fallback_grid=avg_quali_pos)
                 team_trend = self.get_team_trend(t_id, race.season, race.round)
-                sprint_pts = self.get_sprint_points(d_id, race.season, race.round)
                 circ_fit = self.get_circuit_fit(d_id, race.circuit_type, race.season, race.round)
                 
-                # We want a multi-class classification or a binary classification?
-                # Actually, standard approach for race prediction is to predict probabilities for all drivers and pick highest.
-                # So binary classification: Did this driver win? 1 : 0
                 is_winner = 1 if d_id == winner[0] else 0
                 
                 feature_vector = [
-                    recent_pos,
-                    recent_pts,
-                    quali_pos,
-                    sprint_pts,
-                    team_trend,
-                    circ_fit,
-                    1 if race.circuit_type == "street" else 0
+                    recent_pos,        # 1. 5-race avg finish (pre-race)
+                    recent_pts,        # 2. 5-race avg points (pre-race)
+                    avg_quali_pos,     # 3. 5-race avg grid (pre-race)
+                    this_race_grid,    # 4. THIS RACE'S ACTUAL GRID POSITION (strongest predictor)
+                    team_trend,        # 5. Team momentum (pre-race)
+                    circ_fit,          # 6. Circuit type fit (pre-race)
+                    1 if race.circuit_type == "street" else 0 # 7. Circuit type flag
                 ]
                 
                 features.append(feature_vector)
                 labels.append(is_winner)
+                race_ids.append(race.race_id)
+                seasons.append(race.season)
                 
-        return np.array(features), np.array(labels)
+        return np.array(features), np.array(labels), np.array(race_ids), np.array(seasons)
         
     def get_upcoming_race_features(self, db):
-        """Generate features for active drivers based on the most recent completed race"""
-        # Find the latest race session that actually has results in the database
+        """Generate pre-race features for active drivers"""
         latest_res = db.query(Result.session_id, Race.season, Race.round)\
             .select_from(Result)\
             .join(F1Session, Result.session_id == F1Session.session_id)\
@@ -147,9 +160,8 @@ class DataProcessor:
             .first()
             
         if not latest_res:
-            # Fallback: pick any drivers from drivers table
             drivers = db.query(Driver).limit(10).all()
-            return [{"driver": f"{d.given_name} {d.family_name}", "features": [10.0, 0.0, 10.0, 0.0, 0.0, 10.0, 0]} for d in drivers]
+            return [{"driver": f"{d.given_name} {d.family_name}", "features": [10.0, 0.0, 10.0, 10.0, 0.0, 10.0, 0]} for d in drivers]
             
         session_id, season, round_num = latest_res
         
@@ -159,16 +171,16 @@ class DataProcessor:
         features = []
         for d_id, t_id in active_drivers:
             recent_pos, recent_pts = self.get_driver_form(d_id, season, round_num + 1)
-            quali_pos = self.get_driver_quali_form(d_id, season, round_num + 1)
+            avg_quali_pos = self.get_driver_quali_form(d_id, season, round_num + 1)
+            this_race_grid = avg_quali_pos # For upcoming, use recent qualifying form
             team_trend = self.get_team_trend(t_id, season, round_num + 1)
-            sprint_pts = self.get_sprint_points(d_id, season, round_num + 1)
             circ_fit = self.get_circuit_fit(d_id, "permanent", season, round_num + 1)
             
             feature_vector = [
                 recent_pos,
                 recent_pts,
-                quali_pos,
-                sprint_pts,
+                avg_quali_pos,
+                this_race_grid,
                 team_trend,
                 circ_fit,
                 0
@@ -180,4 +192,3 @@ class DataProcessor:
             features.append({"driver": name, "features": feature_vector})
             
         return features
-
