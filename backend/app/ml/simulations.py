@@ -18,10 +18,10 @@ CURRENT_2026_DRIVER_POINTS = [
 # Standard F1 Points System for P1 to P10
 F1_POINTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1]
 
-def run_monte_carlo_championship_simulation(n_iterations: int = 10000, remaining_races: int = 11) -> Dict:
+def run_monte_carlo_championship_simulation(n_iterations: int = 1000, remaining_races: int = 11) -> Dict:
     """
-    10,000-Iteration Monte Carlo Simulation using Production Model Win Probabilities
-    to compute dynamic Drivers' and Constructors' Championship Title Chances.
+    1,000-Iteration Monte Carlo Simulation using Production Model Win Probabilities
+    to compute dynamic Drivers' and Constructors' Championship Title Chances instantly.
     """
     driver_wins = {d["driver"]: 0 for d in CURRENT_2026_DRIVER_POINTS}
     team_wins = {}

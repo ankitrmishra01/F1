@@ -273,11 +273,11 @@ from app.ml.simulations import run_monte_carlo_championship_simulation
 
 @router.get("/championship")
 def get_championship_predictions(db: Session = Depends(get_db)):
-    """Full World Championship Title Chances computed via 10,000-run Monte Carlo Simulation"""
-    sim_results = run_monte_carlo_championship_simulation(10000, remaining_races=11)
+    """Full World Championship Title Chances computed via 1,000-run Monte Carlo Simulation"""
+    sim_results = run_monte_carlo_championship_simulation(1000, remaining_races=11)
     
     return {
-        "model_accuracy": "10,000-Iteration Monte Carlo Title Simulation Engine",
+        "model_accuracy": "1,000-Iteration Monte Carlo Title Simulation Engine",
         "drivers_championship": sim_results["drivers_championship"],
         "constructors_championship": sim_results["constructors_championship"]
     }
