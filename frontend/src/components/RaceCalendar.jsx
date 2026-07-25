@@ -12,7 +12,7 @@ export default function RaceCalendar() {
 
   useEffect(() => {
     seasonsAPI.getLatest().then((res) => {
-      const s = res.data.season || 2026;
+      const s = res.data.season || res.data.latest_season || 2026;
       setLatestSeason(s);
       setSeason(s);
     }).catch(() => {
@@ -29,7 +29,7 @@ export default function RaceCalendar() {
     try {
       setLoading(true);
       const response = await racesAPI.getAllRaces(season);
-      setRaces(response.data);
+      setRaces(response.data || []);
       setError(null);
     } catch (err) {
       setError("Failed to load races");
@@ -39,7 +39,7 @@ export default function RaceCalendar() {
     }
   };
 
-  // Full Historical Schedule Options: 2005 to Latest Season (2026)
+  // Full Historical Schedule Options: 2005 to Latest Season (2026) sorted descending
   const DATA_START_YEAR = 2005;
   const seasonOptions = latestSeason
     ? Array.from({ length: latestSeason - DATA_START_YEAR + 1 }, (_, i) => latestSeason - i)

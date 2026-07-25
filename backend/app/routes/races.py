@@ -35,10 +35,14 @@ REAL_2024_WINNERS = {
 
 @router.get("/")
 def get_races(season: int = None, db: Session = Depends(get_db)):
-    """List all races for 2024, 2025, 2026 with real database winners and live weekend session breakdowns"""
+    """List all races, explicitly casting season parameter to integer"""
     query = db.query(Race)
-    if season:
-        query = query.filter(Race.season == season)
+    if season is not None:
+        try:
+            season_int = int(season)
+            query = query.filter(Race.season == season_int)
+        except ValueError:
+            pass
     races = query.order_by(Race.season.desc(), Race.round.asc()).all()
     
     result_list = []
