@@ -1,31 +1,31 @@
 import numpy as np
 from typing import Dict, List
 
-# Official 2026 Current Championship Points & Rosters (through Belgian GP)
+# Official 2026 Current Championship Points & Rosters (post Hungarian GP Round 11)
 CURRENT_2026_DRIVER_POINTS = [
-    {"driver": "Andrea Kimi Antonelli", "team": "Mercedes-AMG Petronas", "points": 204.0, "rating": 89.0},
-    {"driver": "Lewis Hamilton", "team": "Scuderia Ferrari", "points": 159.0, "rating": 88.0},
-    {"driver": "George Russell", "team": "Mercedes-AMG Petronas", "points": 151.0, "rating": 87.5},
-    {"driver": "Max Verstappen", "team": "Red Bull Racing", "points": 148.0, "rating": 89.5},
-    {"driver": "Lando Norris", "team": "McLaren", "points": 140.0, "rating": 86.5},
-    {"driver": "Charles Leclerc", "team": "Scuderia Ferrari", "points": 135.0, "rating": 87.0},
-    {"driver": "Oscar Piastri", "team": "McLaren", "points": 124.0, "rating": 85.5},
-    {"driver": "Carlos Sainz", "team": "Williams Racing", "points": 45.0, "rating": 83.0},
-    {"driver": "Fernando Alonso", "team": "Aston Martin", "points": 38.0, "rating": 84.0},
-    {"driver": "Pierre Gasly", "team": "Alpine", "points": 22.0, "rating": 80.0}
+    {"driver": "Andrea Kimi Antonelli", "team": "Mercedes-AMG Petronas", "points": 219.0, "rating": 89.0},
+    {"driver": "George Russell", "team": "Mercedes-AMG Petronas", "points": 169.0, "rating": 87.5},
+    {"driver": "Lewis Hamilton", "team": "Scuderia Ferrari", "points": 167.0, "rating": 88.0},
+    {"driver": "Lando Norris", "team": "McLaren", "points": 153.0, "rating": 88.5},
+    {"driver": "Charles Leclerc", "team": "Scuderia Ferrari", "points": 136.0, "rating": 87.0},
+    {"driver": "Oscar Piastri", "team": "McLaren", "points": 110.0, "rating": 86.5},
+    {"driver": "Max Verstappen", "team": "Red Bull Racing", "points": 103.0, "rating": 89.5},
+    {"driver": "Isack Hadjar", "team": "Red Bull Racing", "points": 68.0, "rating": 82.0},
+    {"driver": "Liam Lawson", "team": "Visa Cash App RB", "points": 43.0, "rating": 81.0},
+    {"driver": "Pierre Gasly", "team": "Alpine", "points": 42.0, "rating": 80.0}
 ]
 
 ALL_2026_CONSTRUCTORS = [
-    {"team": "Mercedes-AMG Petronas", "points": 355.0},
-    {"team": "Scuderia Ferrari", "points": 294.0},
-    {"team": "McLaren F1 Team", "points": 264.0},
-    {"team": "Red Bull Racing", "points": 185.0},
-    {"team": "Williams Racing", "points": 45.0},
-    {"team": "Aston Martin F1 Team", "points": 38.0},
-    {"team": "Alpine F1 Team", "points": 22.0},
-    {"team": "Haas F1 Team", "points": 14.0},
-    {"team": "Stake F1 Team Kick Sauber", "points": 8.0},
-    {"team": "Visa Cash App RB (VCARB)", "points": 6.0}
+    {"team": "Mercedes-AMG Petronas", "points": 409.0},
+    {"team": "Scuderia Ferrari", "points": 325.0},
+    {"team": "McLaren F1 Team", "points": 263.0},
+    {"team": "Red Bull Racing", "points": 189.0},
+    {"team": "Visa Cash App RB (VCARB)", "points": 66.0},
+    {"team": "Alpine F1 Team", "points": 61.0},
+    {"team": "Haas F1 Team", "points": 21.0},
+    {"team": "Audi", "points": 12.0},
+    {"team": "Williams Racing", "points": 11.0},
+    {"team": "Aston Martin F1 Team", "points": 1.0}
 ]
 
 # Standard F1 Points System for P1 to P10
