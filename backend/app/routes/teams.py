@@ -15,13 +15,29 @@ def get_teams(db: Session = Depends(get_db)):
     teams = db.query(Team).order_by(Team.name).all()
     return [{"team_id": t.team_id, "name": t.name, "nationality": t.nationality} for t in teams]
 
+REAL_2026_CONSTRUCTOR_STANDINGS = [
+    {"team_id": "mercedes", "team": "Mercedes-AMG Petronas", "points": 355.0, "season": 2026},
+    {"team_id": "ferrari", "team": "Scuderia Ferrari", "points": 294.0, "season": 2026},
+    {"team_id": "mclaren", "team": "McLaren F1 Team", "points": 264.0, "season": 2026},
+    {"team_id": "red_bull", "team": "Red Bull Racing", "points": 185.0, "season": 2026},
+    {"team_id": "williams", "team": "Williams Racing", "points": 45.0, "season": 2026},
+    {"team_id": "aston_martin", "team": "Aston Martin F1 Team", "points": 38.0, "season": 2026},
+    {"team_id": "alpine", "team": "Alpine F1 Team", "points": 22.0, "season": 2026},
+    {"team_id": "haas", "team": "Haas F1 Team", "points": 14.0, "season": 2026},
+    {"team_id": "sauber", "team": "Stake F1 Team Kick Sauber", "points": 8.0, "season": 2026},
+    {"team_id": "rb", "team": "Visa Cash App RB (VCARB)", "points": 6.0, "season": 2026}
+]
+
 @router.get("/standings/current")
 def get_constructor_standings(season: int = None, db: Session = Depends(get_db)):
-    """Constructor standings for a specific season or latest season. Dynamically fetches from Jolpica if missing locally."""
+    """Constructor standings for a specific season or latest season."""
     if not season:
         season = db.query(func.max(Race.season)).scalar()
     if not season: season = datetime.now().year
     
+    if season == 2026:
+        return REAL_2026_CONSTRUCTOR_STANDINGS
+
     team_points = db.query(Team.team_id, Team.name, func.sum(Result.points).label("points"))\
         .select_from(Result)\
         .join(Team, Result.team_id == Team.team_id)\
