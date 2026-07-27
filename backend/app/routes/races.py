@@ -121,6 +121,9 @@ def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
     if not race:
         raise HTTPException(status_code=404, detail="Race not found")
         
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    is_completed_race = race.date and race.date < today_str
+    
     sessions = db.query(F1Session).filter(F1Session.race_id == race_id).all()
     
     response = {
@@ -129,13 +132,15 @@ def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
         "season": race.season,
         "country": race.country,
         "circuit_name": race.circuit_name,
-        "is_upcoming": False,
+        "is_upcoming": not is_completed_race,
+        "header_title": "🏆 Official Race Weekend Results" if is_completed_race else "⏳ Upcoming Race Weekend Schedule",
         "sessions": {}
     }
     
     has_results = False
     for s in sessions:
         results_data = []
+        seen_drivers = set()
         results = db.query(Result, Driver, Team)\
                     .select_from(Result)\
                     .join(Driver, Result.driver_id == Driver.driver_id)\
@@ -147,6 +152,10 @@ def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
         if results:
             has_results = True
             for r, d, t in results:
+                if d.driver_id in seen_drivers:
+                    continue
+                seen_drivers.add(d.driver_id)
+                
                 results_data.append({
                     "driver_id": d.driver_id,
                     "driver_name": f"{d.given_name} {d.family_name}",
@@ -159,17 +168,16 @@ def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
                 })
             response["sessions"][s.session_name] = results_data
 
-    # If upcoming race with no recorded session results, generate weekend timetable schedule
-    if not has_results:
-        response["is_upcoming"] = True
+    # If upcoming race or missing session results, generate weekend timetable schedule
+    if not has_results or not is_completed_race:
         race_dt = datetime.strptime(race.date, "%Y-%m-%d") if race.date else datetime.now()
         
         response["timetable"] = [
-            {"session": "Practice 1 (FP1)", "date": (race_dt - timedelta(days=2)).strftime("%a, %d %b %Y"), "time": "Completed (Lando Norris P1)"},
-            {"session": "Practice 2 (FP2)", "date": (race_dt - timedelta(days=2)).strftime("%a, %d %b %Y"), "time": "Completed (Lando Norris P1)"},
-            {"session": "Practice 3 (FP3)", "date": (race_dt - timedelta(days=1)).strftime("%a, %d %b %Y"), "time": "Completed"},
-            {"session": "Qualifying", "date": (race_dt - timedelta(days=1)).strftime("%a, %d %b %Y"), "time": "Completed"},
-            {"session": "Grand Prix Race", "date": race_dt.strftime("%a, %d %b %Y"), "time": "Completed (Lando Norris P1)"}
+            {"session": "Practice 1 (FP1)", "date": (race_dt - timedelta(days=2)).strftime("%a, %d %b %Y"), "time": "Completed" if is_completed_race else "Fri 16:30 IST"},
+            {"session": "Practice 2 (FP2)", "date": (race_dt - timedelta(days=2)).strftime("%a, %d %b %Y"), "time": "Completed" if is_completed_race else "Fri 20:00 IST"},
+            {"session": "Practice 3 (FP3)", "date": (race_dt - timedelta(days=1)).strftime("%a, %d %b %Y"), "time": "Completed" if is_completed_race else "Sat 16:00 IST"},
+            {"session": "Qualifying", "date": (race_dt - timedelta(days=1)).strftime("%a, %d %b %Y"), "time": "Completed" if is_completed_race else "Sat 19:30 IST"},
+            {"session": "Grand Prix Race", "date": race_dt.strftime("%a, %d %b %Y"), "time": "Completed" if is_completed_race else "Sun 18:30 IST"}
         ]
 
     return response

@@ -56,7 +56,7 @@ export default function RaceWeekend() {
         <div className="grid-section">
           <div style={{ padding: "1rem 1.5rem", borderBottom: "1px solid var(--border-color)", background: "rgba(56, 189, 248, 0.05)" }}>
             <h3 style={{ margin: 0, color: "var(--accent-cyan)", fontSize: "1.2rem", fontWeight: 800 }}>
-              ⏳ Upcoming Race Weekend Schedule
+              {data.header_title || (data.is_upcoming ? "⏳ Upcoming Race Weekend Schedule" : "🏆 Official Race Weekend Results")}
             </h3>
             <p style={{ color: "var(--text-secondary)", margin: "4px 0 0 0", fontSize: "0.85rem" }}>
               Official weekend track timetable & session start times.

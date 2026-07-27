@@ -207,10 +207,17 @@ def get_24_round_unique_2026_predictions(round_num: int):
 
     return mapping.get(round_num, default_grid)
 
+from datetime import datetime
+
 @router.get("/favourite")
 def get_favourite(db: Session = Depends(get_db)):
-    """Home Page upcoming race winner prediction"""
-    grid = get_24_round_unique_2026_predictions(11)
+    """Home Page upcoming race winner prediction - dynamically auto-advances to the next future race"""
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    upcoming_race = db.query(Race).filter(Race.season == 2026, Race.date >= today_str).order_by(Race.date.asc()).first()
+    target_round = upcoming_race.round if upcoming_race else 12
+    race_name = upcoming_race.race_name if upcoming_race else "Belgian Grand Prix"
+    
+    grid = get_24_round_unique_2026_predictions(target_round)
     
     favourites = []
     for d in grid:
@@ -227,6 +234,8 @@ def get_favourite(db: Session = Depends(get_db)):
         })
 
     return {
+        "round": target_round,
+        "race_name": race_name,
         "model_accuracy": "Multi-Vector Telemetry Ensemble (Random Forest + Gradient Boosting)",
         "algorithm": "Random Forest + Gradient Boosting Ensemble Classifier",
         "favourites": favourites

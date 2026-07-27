@@ -33,11 +33,16 @@ export default function Home() {
     }
   };
 
+  const [favouriteRaceName, setFavouriteRaceName] = useState("Belgian Grand Prix");
+  const [favouriteRound, setFavouriteRound] = useState(12);
+
   const fetchPredictions = async () => {
     try {
       setPredLoading(true);
       const res = await predictionAPI.getFavourite();
       setFavourites(res.data.favourites || []);
+      if (res.data.race_name) setFavouriteRaceName(res.data.race_name);
+      if (res.data.round) setFavouriteRound(res.data.round);
       setPredError(null);
     } catch (err) {
       console.error(err);
@@ -127,7 +132,7 @@ export default function Home() {
             ) : (
               <>
                 <div className="winner-block">
-                  <span className="winner-label">Favoured Winner &middot; Round 11 Hungarian GP</span>
+                  <span className="winner-label">Favoured Winner &middot; Round {favouriteRound} {favouriteRaceName}</span>
                   <span className="winner-name">{favourites[0].driver}</span>
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '10px' }}>
                     {favourites[0].team}
