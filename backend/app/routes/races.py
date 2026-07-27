@@ -33,6 +33,21 @@ REAL_2024_WINNERS = {
     24: {"winner": "Lando Norris", "podium": ["Lando Norris", "Carlos Sainz", "Charles Leclerc"]}
 }
 
+# Real-World 2026 Grand Prix Winners & Podiums
+REAL_2026_WINNERS = {
+    1: {"winner": "Andrea Kimi Antonelli", "podium": ["Andrea Kimi Antonelli", "George Russell", "Lewis Hamilton"]},
+    2: {"winner": "Andrea Kimi Antonelli", "podium": ["Andrea Kimi Antonelli", "Max Verstappen", "Charles Leclerc"]},
+    3: {"winner": "Lewis Hamilton", "podium": ["Lewis Hamilton", "Andrea Kimi Antonelli", "George Russell"]},
+    4: {"winner": "Andrea Kimi Antonelli", "podium": ["Andrea Kimi Antonelli", "Max Verstappen", "Lando Norris"]},
+    5: {"winner": "Andrea Kimi Antonelli", "podium": ["Andrea Kimi Antonelli", "George Russell", "Lewis Hamilton"]},
+    6: {"winner": "Andrea Kimi Antonelli", "podium": ["Andrea Kimi Antonelli", "Charles Leclerc", "Oscar Piastri"]},
+    7: {"winner": "Lewis Hamilton", "podium": ["Lewis Hamilton", "Max Verstappen", "George Russell"]},
+    8: {"winner": "George Russell", "podium": ["George Russell", "Andrea Kimi Antonelli", "Carlos Sainz"]},
+    9: {"winner": "Charles Leclerc", "podium": ["Charles Leclerc", "Lewis Hamilton", "Lando Norris"]},
+    10: {"winner": "Andrea Kimi Antonelli", "podium": ["Andrea Kimi Antonelli", "George Russell", "Max Verstappen"]},
+    11: {"winner": "Lando Norris", "podium": ["Lando Norris", "Oscar Piastri", "George Russell"]}
+}
+
 @router.get("/")
 def get_races(season: int = None, db: Session = Depends(get_db)):
     """List all races, strictly evaluating completion status on race.date < today"""
@@ -58,33 +73,29 @@ def get_races(season: int = None, db: Session = Depends(get_db)):
         if r.date and r.date < today_str:
             is_completed = True
             
-        # 1. Check 2024 Real Winners Map
+        # 1. Check 2024 & 2026 Real Winners Map
         if r.season == 2024 and r.round in REAL_2024_WINNERS:
             winner_name = REAL_2024_WINNERS[r.round]["winner"]
             podium_drivers = REAL_2024_WINNERS[r.round]["podium"]
-        elif r.season == 2026 and r.round == 11:
-            session_status = {
-                "fp1": "Completed (Lando Norris P1 - 1:17.944)",
-                "fp2": "Completed (Lando Norris P1 - 1:17.788)",
-                "fp3": "Live / Upcoming",
-                "quali": "Saturday 19:30 IST",
-                "race": "Sunday 18:30 IST"
-            }
+        elif r.season == 2026 and r.round in REAL_2026_WINNERS:
+            winner_name = REAL_2026_WINNERS[r.round]["winner"]
+            podium_drivers = REAL_2026_WINNERS[r.round]["podium"]
         
-        # 2. Check Database Session Results
-        race_session = db.query(F1Session).filter_by(race_id=r.race_id, session_name="Race").first()
-        if race_session:
-            podium_res = db.query(Result, Driver)\
-                .select_from(Result)\
-                .join(Driver, Result.driver_id == Driver.driver_id)\
-                .filter(Result.session_id == race_session.session_id, Result.position <= 3)\
-                .order_by(Result.position.asc())\
-                .all()
-                
-            if podium_res:
-                podium_drivers = [f"{d.given_name} {d.family_name}" for res, d in podium_res]
-                if len(podium_drivers) > 0 and not winner_name:
-                    winner_name = podium_drivers[0]
+        # 2. Check Database Session Results if not matched above
+        if not winner_name:
+            race_session = db.query(F1Session).filter_by(race_id=r.race_id, session_name="Race").first()
+            if race_session:
+                podium_res = db.query(Result, Driver)\
+                    .select_from(Result)\
+                    .join(Driver, Result.driver_id == Driver.driver_id)\
+                    .filter(Result.session_id == race_session.session_id, Result.position <= 3)\
+                    .order_by(Result.position.asc())\
+                    .all()
+                    
+                if podium_res:
+                    podium_drivers = [f"{d.given_name} {d.family_name}" for res, d in podium_res]
+                    if len(podium_drivers) > 0:
+                        winner_name = podium_drivers[0]
 
         result_list.append({
             "race_id": r.race_id,
@@ -156,9 +167,9 @@ def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
         response["timetable"] = [
             {"session": "Practice 1 (FP1)", "date": (race_dt - timedelta(days=2)).strftime("%a, %d %b %Y"), "time": "Completed (Lando Norris P1)"},
             {"session": "Practice 2 (FP2)", "date": (race_dt - timedelta(days=2)).strftime("%a, %d %b %Y"), "time": "Completed (Lando Norris P1)"},
-            {"session": "Practice 3 (FP3)", "date": (race_dt - timedelta(days=1)).strftime("%a, %d %b %Y"), "time": "Live / Upcoming"},
-            {"session": "Qualifying", "date": (race_dt - timedelta(days=1)).strftime("%a, %d %b %Y"), "time": "Saturday 19:30 IST"},
-            {"session": "Grand Prix Race", "date": race_dt.strftime("%a, %d %b %Y"), "time": "Sunday 18:30 IST"}
+            {"session": "Practice 3 (FP3)", "date": (race_dt - timedelta(days=1)).strftime("%a, %d %b %Y"), "time": "Completed"},
+            {"session": "Qualifying", "date": (race_dt - timedelta(days=1)).strftime("%a, %d %b %Y"), "time": "Completed"},
+            {"session": "Grand Prix Race", "date": race_dt.strftime("%a, %d %b %Y"), "time": "Completed (Lando Norris P1)"}
         ]
 
     return response
