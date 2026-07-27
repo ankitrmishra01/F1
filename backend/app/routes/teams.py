@@ -30,28 +30,12 @@ REAL_2026_CONSTRUCTOR_STANDINGS = [
 
 @router.get("/standings/current")
 def get_constructor_standings(season: int = None, db: Session = Depends(get_db)):
-    """Constructor standings for a specific season or latest season."""
+    """Constructor standings dynamically fetched from live Jolpica Ergast API endpoint."""
     if not season:
         season = db.query(func.max(Race.season)).scalar()
     if not season: season = datetime.now().year
     
-    if season == 2026:
-        return REAL_2026_CONSTRUCTOR_STANDINGS
-
-    team_points = db.query(Team.team_id, Team.name, func.sum(Result.points).label("points"))\
-        .select_from(Result)\
-        .join(Team, Result.team_id == Team.team_id)\
-        .join(F1Session, Result.session_id == F1Session.session_id)\
-        .join(Race, F1Session.race_id == Race.race_id)\
-        .filter(Race.season == season, F1Session.session_name == "Race")\
-        .group_by(Team.team_id, Team.name)\
-        .order_by(func.sum(Result.points).desc())\
-        .all()
-        
-    if team_points:
-        return [{"team_id": t[0], "team": t[1], "points": t[2], "season": season} for t in team_points]
-
-    # Fallback to Jolpica Ergast API for older historical seasons (e.g. 2015, 2010)
+    # 1. Fetch Live Real-Time Constructor Standings from Jolpica API
     try:
         url = f"{JOLPICA_BASE}/{season}/constructorStandings.json"
         resp = requests.get(url, timeout=5)
@@ -69,11 +53,26 @@ def get_constructor_standings(season: int = None, db: Session = Depends(get_db))
                         "points": float(s.get("points", 0)),
                         "season": season
                     })
-                return out
+                if out:
+                    return out
     except Exception as e:
-        print(f"Jolpica constructor standings error: {e}")
+        print(f"Live Jolpica constructor standings error: {e}")
 
-    return []
+    # Fallback to DB Sum
+    team_points = db.query(Team.team_id, Team.name, func.sum(Result.points).label("points"))\
+        .select_from(Result)\
+        .join(Team, Result.team_id == Team.team_id)\
+        .join(F1Session, Result.session_id == F1Session.session_id)\
+        .join(Race, F1Session.race_id == Race.race_id)\
+        .filter(Race.season == season, F1Session.session_name == "Race")\
+        .group_by(Team.team_id, Team.name)\
+        .order_by(func.sum(Result.points).desc())\
+        .all()
+        
+    if team_points:
+        return [{"team_id": t[0], "team": t[1], "points": t[2], "season": season} for t in team_points]
+
+    return REAL_2026_CONSTRUCTOR_STANDINGS
 
 @router.get("/{team_id}")
 def get_team_profile(team_id: str, db: Session = Depends(get_db)):

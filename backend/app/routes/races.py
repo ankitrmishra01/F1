@@ -114,9 +114,11 @@ def get_races(season: int = None, db: Session = Depends(get_db)):
         
     return result_list
 
+import requests
+
 @router.get("/{race_id}/sessions")
 def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
-    """All sessions for one race weekend, with results or timetable if upcoming"""
+    """All sessions for one race weekend, dynamically fetching live Ergast API results for completed races"""
     race = db.query(Race).filter(Race.race_id == race_id).first()
     if not race:
         raise HTTPException(status_code=404, detail="Race not found")
@@ -167,6 +169,39 @@ def get_race_sessions(race_id: int, db: Session = Depends(get_db)):
                     "status": r.status
                 })
             response["sessions"][s.session_name] = results_data
+
+    # Live Ergast API Fetch for Completed Races missing local Race session data
+    if is_completed_race and ("Race" not in response["sessions"] or len(response["sessions"]["Race"]) == 0):
+        try:
+            url = f"https://api.jolpi.ca/ergast/f1/{race.season}/{race.round}/results.json"
+            res = requests.get(url, timeout=5)
+            if res.status_code == 200:
+                races_data = res.json().get("MRData", {}).get("RaceTable", {}).get("Races", [])
+                if races_data:
+                    res_list = races_data[0].get("Results", [])
+                    live_race_results = []
+                    for r_item in res_list:
+                        d_item = r_item.get("Driver", {})
+                        t_item = r_item.get("Constructor", {})
+                        pos_val = int(r_item["position"]) if r_item.get("position", "").isdigit() else None
+                        pts_val = float(r_item.get("points", 0.0))
+                        grid_val = int(r_item["grid"]) if r_item.get("grid", "").isdigit() else None
+                        
+                        live_race_results.append({
+                            "driver_id": d_item.get("driverId"),
+                            "driver_name": f"{d_item.get('givenName', '')} {d_item.get('familyName', '')}",
+                            "team_id": t_item.get("constructorId"),
+                            "team_name": t_item.get("name"),
+                            "position": pos_val,
+                            "points": pts_val,
+                            "grid": grid_val,
+                            "status": r_item.get("status", "Finished")
+                        })
+                    if live_race_results:
+                        response["sessions"]["Race"] = live_race_results
+                        has_results = True
+        except Exception as e:
+            print(f"Live Ergast API race results fetch error: {e}")
 
     # If upcoming race or missing session results, generate weekend timetable schedule
     if not has_results or not is_completed_race:

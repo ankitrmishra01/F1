@@ -159,14 +159,38 @@ REAL_2026_DRIVER_STANDINGS = [
 
 @router.get("/standings/current")
 def get_driver_standings(season: int = None, db: Session = Depends(get_db)):
-    """Driver standings for a specific season or latest season."""
+    """Driver standings dynamically fetched from live Jolpica Ergast API endpoint."""
     if not season:
         season = db.query(func.max(Race.season)).scalar()
     if not season: season = datetime.now().year
 
-    if season == 2026:
-        return REAL_2026_DRIVER_STANDINGS
+    # 1. Fetch Live Real-Time Driver Standings from Jolpica API
+    try:
+        url = f"{JOLPICA_BASE}/{season}/driverStandings.json"
+        resp = requests.get(url, timeout=5)
+        if resp.status_code == 200:
+            data = resp.json()
+            lists = data.get("MRData", {}).get("StandingsTable", {}).get("StandingsLists", [])
+            if lists:
+                standings = lists[0].get("DriverStandings", [])
+                out = []
+                for s in standings:
+                    d_info = s.get("Driver", {})
+                    t_info = s.get("Constructors", [{}])[0]
+                    out.append({
+                        "driver_id": d_info.get("driverId"),
+                        "name": f"{d_info.get('givenName', '')} {d_info.get('familyName', '')}",
+                        "nationality": d_info.get("nationality", ""),
+                        "team_name": t_info.get("name", "N/A"),
+                        "points": float(s.get("points", 0)),
+                        "season": season
+                    })
+                if out:
+                    return out
+    except Exception as e:
+        print(f"Live Jolpica driver standings error: {e}")
 
+    # Fallback to DB Sum
     driver_points = db.query(
         Driver.driver_id,
         Driver.given_name,
@@ -194,31 +218,7 @@ def get_driver_standings(season: int = None, db: Session = Depends(get_db)):
             "season": season
         } for d in driver_points]
 
-    try:
-        url = f"{JOLPICA_BASE}/{season}/driverStandings.json"
-        resp = requests.get(url, timeout=5)
-        if resp.status_code == 200:
-            data = resp.json()
-            lists = data.get("MRData", {}).get("StandingsTable", {}).get("StandingsLists", [])
-            if lists:
-                standings = lists[0].get("DriverStandings", [])
-                out = []
-                for s in standings:
-                    d_info = s.get("Driver", {})
-                    t_info = s.get("Constructors", [{}])[0]
-                    out.append({
-                        "driver_id": d_info.get("driverId"),
-                        "name": f"{d_info.get('givenName', '')} {d_info.get('familyName', '')}",
-                        "nationality": d_info.get("nationality", ""),
-                        "team_name": t_info.get("name", "N/A"),
-                        "points": float(s.get("points", 0)),
-                        "season": season
-                    })
-                return out
-    except Exception as e:
-        print(f"Jolpica driver standings fetch error: {e}")
-
-    return []
+    return REAL_2026_DRIVER_STANDINGS
 
 @router.get("/{driver_id}")
 def get_driver_profile(driver_id: str, db: Session = Depends(get_db)):
