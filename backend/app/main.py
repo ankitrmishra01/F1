@@ -18,6 +18,11 @@ app = FastAPI(
     version="3.0.0"
 )
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for external uptime pinging"""
+    return {"status": "ok", "service": "apexf1-backend"}
+
 # Configure Production CORS
 origins = [
     "http://localhost:5173",
@@ -78,11 +83,6 @@ async def root():
             "docs": "/docs"
         }
     }
-
-@app.get("/health")
-async def health_check():
-    """Health check endpoint"""
-    return {"status": "healthy"}
 
 @app.get("/api/v1/status")
 async def api_status():
